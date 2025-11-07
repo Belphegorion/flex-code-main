@@ -38,6 +38,7 @@ services:
       - mongo_data:/data/db
     environment:
       - MONGO_INITDB_DATABASE=eventflex
+    command: mongod --replSet rs0
 
   redis:
     image: redis:7-alpine
