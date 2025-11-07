@@ -117,7 +117,7 @@ export const acceptApplication = async (req, res) => {
       
       // Check if job still has available positions
       const currentFilled = job.positionsFilled || 0;
-      if (currentFilled >= job.workersNeeded) {
+      if (currentFilled >= job.totalPositions) {
         throw new Error('Job is already fully staffed');
       }
 
@@ -133,7 +133,7 @@ export const acceptApplication = async (req, res) => {
       job.positionsFilled = currentFilled + 1;
       
       // Update job status if fully staffed
-      if (job.positionsFilled >= job.workersNeeded) {
+      if (job.positionsFilled >= job.totalPositions) {
         job.status = 'filled';
       }
       

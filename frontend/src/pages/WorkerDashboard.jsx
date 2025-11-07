@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { FiClock, FiCheckCircle, FiXCircle, FiCalendar, FiBriefcase } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
@@ -69,61 +70,54 @@ export default function WorkerDashboard() {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">My Dashboard</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your jobs and applications</p>
-          </div>
-          <div className="w-full sm:w-auto">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Dashboard</h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Track your jobs and earnings</p>
+            </div>
             <StartWorkButton />
           </div>
-        </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Jobs</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">{acceptedJobs.length}</p>
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-600 dark:text-gray-400">Active Jobs</span>
+                <FiBriefcase className="text-green-600" size={20} />
               </div>
-              <div className="p-3 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-xl">
-                <FiBriefcase size={24} />
-              </div>
-            </div>
-          </div>
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                  {applications.filter(app => app.status === 'pending').length}
-                </p>
-              </div>
-              <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 rounded-xl">
-                <FiClock size={24} />
-              </div>
-            </div>
-          </div>
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Accepted</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                  {applications.filter(app => app.status === 'accepted').length}
-                </p>
-              </div>
-              <div className="p-3 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-xl">
-                <FiCheckCircle size={24} />
-              </div>
-            </div>
-          </div>
-        </div>
+              <div className="text-3xl font-bold text-gray-900 dark:text-white">{acceptedJobs.length}</div>
+              <div className="text-xs text-green-600 mt-1">Currently working</div>
+            </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Active Jobs */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 p-6">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-600 dark:text-gray-400">Pending</span>
+                <FiClock className="text-yellow-600" size={20} />
+              </div>
+              <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                {applications.filter(app => app.status === 'pending').length}
+              </div>
+              <div className="text-xs text-gray-500 mt-1">Awaiting response</div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-600 dark:text-gray-400">Accepted</span>
+                <FiCheckCircle className="text-indigo-600" size={20} />
+              </div>
+              <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                {applications.filter(app => app.status === 'accepted').length}
+              </div>
+              <div className="text-xs text-indigo-600 mt-1">↑ This month</div>
+            </motion.div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Active Jobs */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
             <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
               <FiCheckCircle className="text-green-600 dark:text-green-400" />
               Active Jobs ({acceptedJobs.length})
@@ -163,8 +157,8 @@ export default function WorkerDashboard() {
             )}
           </div>
 
-          {/* Applications */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 p-6">
+            {/* Applications */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
             <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
               <FiClock className="text-blue-600 dark:text-blue-400" />
               My Applications ({applications.length})
@@ -212,6 +206,7 @@ export default function WorkerDashboard() {
                 ))}
               </div>
             )}
+            </div>
           </div>
         </div>
       </div>

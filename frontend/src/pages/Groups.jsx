@@ -64,19 +64,20 @@ export default function Groups() {
 
   return (
     <Layout>
-      <div className="max-w-5xl mx-auto h-[calc(100vh-80px)]">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg h-full flex flex-col">
-          {/* Header */}
-          <div className="bg-primary-600 dark:bg-primary-700 text-white p-4 rounded-t-lg">
-            <div className="flex justify-between items-center mb-3">
-              <h1 className="text-2xl font-bold">Messages</h1>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden h-[calc(100vh-120px)] flex flex-col">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h1 className="text-3xl font-bold">Messages</h1>
               {user?.role === 'worker' && (
                 <button
                   onClick={() => setShowQRScanner(true)}
-                  className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                  className="p-2.5 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 rounded-xl transition-all"
                   title="Join Group via QR"
                 >
-                  <FiHash size={20} />
+                  <FiHash size={22} />
                 </button>
               )}
               {user?.role === 'sponsor' && (
@@ -90,7 +91,7 @@ export default function Groups() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search conversations..."
-                className="w-full pl-10 pr-4 py-2 rounded-lg bg-primary-700 dark:bg-primary-800 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/30"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40"
               />
             </div>
           </div>
@@ -120,22 +121,22 @@ export default function Groups() {
                   >
                     <Link
                       to={`/groups/${group._id}`}
-                      className="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                      className="flex items-center gap-4 p-5 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 dark:hover:from-gray-700/50 dark:hover:to-gray-700/30 transition-all"
                     >
                       {/* Avatar */}
                       <div className="relative flex-shrink-0">
-                        <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-700 text-white rounded-full flex items-center justify-center text-xl font-bold shadow-md">
+                        <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-2xl flex items-center justify-center text-xl font-bold shadow-lg">
                           {group.name?.charAt(0) || 'G'}
                         </div>
                         {group.lastMessageAt && new Date() - new Date(group.lastMessageAt) < 3600000 && (
-                          <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
+                          <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-3 border-white dark:border-gray-800 rounded-full shadow-md"></div>
                         )}
                       </div>
 
                       {/* Content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-baseline justify-between mb-1">
-                          <h3 className="font-semibold text-base truncate">{group.name}</h3>
+                          <h3 className="font-bold text-lg truncate text-gray-900 dark:text-white">{group.name}</h3>
                           {group.lastMessageAt && (
                             <span className="text-xs text-gray-500 dark:text-gray-400 ml-2 flex-shrink-0">
                               {formatTime(group.lastMessageAt)}
@@ -166,6 +167,8 @@ export default function Groups() {
                 ))}
               </div>
             )}
+          </div>
+        </div>
           </div>
         </div>
       </div>

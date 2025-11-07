@@ -70,6 +70,13 @@ export const updateEvent = async (req, res) => {
       }
     }
 
+    // Validate dates if both are being updated
+    if (req.body.dateStart && req.body.dateEnd) {
+      if (new Date(req.body.dateEnd) <= new Date(req.body.dateStart)) {
+        return res.status(400).json({ message: 'End date must be after start date' });
+      }
+    }
+
     Object.assign(event, req.body);
     await event.save();
     

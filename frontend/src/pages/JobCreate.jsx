@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import Layout from '../components/common/Layout';
@@ -10,6 +10,8 @@ import LocationPicker from '../components/events/LocationPicker';
 const JobCreate = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [events, setEvents] = useState([]);
+  const [selectedEventId, setSelectedEventId] = useState('');
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -21,6 +23,22 @@ const JobCreate = () => {
     totalPositions: ''
   });
 
+  useEffect(() => {
+    fetchMyEvents();
+  }, []);
+
+  const fetchMyEvents = async () => {
+    try {
+      const res = await api.get('/events');
+      setEvents(res.events || []);
+      if (res.events?.length === 1) {
+        setSelectedEventId(res.events[0]._id);
+      }
+    } catch (error) {
+      toast.error('Failed to load events');
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -28,6 +46,11 @@ const JobCreate = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!selectedEventId) {
+      toast.error('Please select an event');
+      return;
+    }
     
     if (!formData.location) {
       toast.error('Please select a location');
@@ -39,6 +62,7 @@ const JobCreate = () => {
     try {
       const jobData = {
         ...formData,
+        eventId: selectedEventId,
         requiredSkills: formData.requiredSkills.split(',').map(s => s.trim()),
         payPerPerson: Number(formData.payPerPerson),
         totalPositions: Number(formData.totalPositions),
@@ -72,6 +96,32 @@ const JobCreate = () => {
           onSubmit={handleSubmit}
           className="card space-y-6"
         >
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              <FiCalendar className="inline mr-2" />
+              Select Event *
+            </label>
+            {events.length === 0 ? (
+              <div className="text-sm text-gray-600 dark:text-gray-400 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                No events found. <Link to="/events/create" className="text-primary-600 hover:underline">Create an event first</Link>
+              </div>
+            ) : (
+              <select
+                value={selectedEventId}
+                onChange={(e) => setSelectedEventId(e.target.value)}
+                className="input-field"
+                required
+              >
+                <option value="">Choose an event...</option>
+                {events.map(event => (
+                  <option key={event._id} value={event._id}>
+                    {event.title} - {new Date(event.dateStart).toLocaleDateString()}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
           <div>
             <label className="block text-sm font-medium mb-2">
               <FiBriefcase className="inline mr-2" />

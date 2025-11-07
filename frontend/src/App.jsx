@@ -8,6 +8,7 @@ import ErrorBoundary from './components/common/ErrorBoundary';
 import RouteErrorBoundary from './components/common/RouteErrorBoundary';
 
 // Pages
+import LandingPage from './pages/LandingPage';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -43,6 +44,7 @@ import SponsorEvents from './pages/SponsorEvents';
 import LeaderboardPage from './pages/Leaderboard';
 import EventWorkersDisplay from './components/badges/EventWorkersDisplay';
 import WorkQR from './pages/WorkQR';
+import WorkerDirectory from './pages/WorkerDirectory';
 
 function App() {
   return (
@@ -53,7 +55,8 @@ function App() {
             <Toast />
             <ErrorBoundary>
               <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             
@@ -238,6 +241,12 @@ function App() {
             <Route path="/work-qr/:eventId" element={
               <ProtectedRoute allowedRoles={['worker']}>
                 <WorkQR />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/worker-directory" element={
+              <ProtectedRoute allowedRoles={['organizer']}>
+                <WorkerDirectory />
               </ProtectedRoute>
             } />
             

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Layout from '../components/common/Layout';
-import StatCard from '../components/common/StatCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { FiDollarSign, FiCalendar, FiUsers, FiTrendingUp, FiEye, FiVideo } from 'react-icons/fi';
 import VideoCallModal from '../components/video/VideoCallModal';
@@ -40,54 +39,68 @@ const SponsorDashboard = () => {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <h1 className="text-3xl font-bold mb-8">Sponsor Dashboard</h1>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Sponsor Dashboard</h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Track your sponsorships and ROI</p>
+            </div>
+            <Link to="/sponsor/events" className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-lg transition-all">
+              Browse Events
+            </Link>
+          </div>
 
           {loading ? (
             <LoadingSpinner />
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-                <StatCard
-                  icon={FiDollarSign}
-                  label="Total Sponsored"
-                  value={`$${stats.totalSponsored.toLocaleString()}`}
-                  color="success"
-                  delay={0}
-                />
-                <StatCard
-                  icon={FiCalendar}
-                  label="Active Events"
-                  value={stats.activeEvents}
-                  color="primary"
-                  delay={0.1}
-                />
-                <StatCard
-                  icon={FiUsers}
-                  label="Workers Supported"
-                  value={stats.workersSupported}
-                  color="warning"
-                  delay={0.2}
-                />
-                <StatCard
-                  icon={FiTrendingUp}
-                  label="ROI"
-                  value={`${stats.roi}%`}
-                  color="success"
-                  delay={0.3}
-                />
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Total Sponsored</span>
+                    <FiDollarSign className="text-green-600" size={20} />
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white">${stats.totalSponsored.toLocaleString()}</div>
+                  <div className="text-xs text-green-600 mt-1">↑ 12% vs last month</div>
+                </motion.div>
+
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Active Events</span>
+                    <FiCalendar className="text-indigo-600" size={20} />
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white">{stats.activeEvents}</div>
+                  <div className="text-xs text-gray-500 mt-1">Currently sponsored</div>
+                </motion.div>
+
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Workers Supported</span>
+                    <FiUsers className="text-purple-600" size={20} />
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white">{stats.workersSupported}</div>
+                  <div className="text-xs text-gray-500 mt-1">Total workers</div>
+                </motion.div>
+
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">ROI</span>
+                    <FiTrendingUp className="text-green-600" size={20} />
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white">{stats.roi}%</div>
+                  <div className="text-xs text-green-600 mt-1">↑ Positive growth</div>
+                </motion.div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <motion.div 
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="card"
+                  className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6"
                 >
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold">Available Events</h2>
@@ -127,7 +140,7 @@ const SponsorDashboard = () => {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="card"
+                  className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6"
                 >
                   <h2 className="text-xl font-semibold mb-4">Your Sponsorships</h2>
                   {sponsorships.length === 0 ? (
@@ -170,7 +183,7 @@ const SponsorDashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
-                className="card mt-6"
+                className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mt-6"
               >
                 <h2 className="text-xl font-semibold mb-4">Live Events</h2>
                 {sponsorships.filter(s => s.eventId?.status === 'ongoing').length === 0 ? (
@@ -215,17 +228,17 @@ const SponsorDashboard = () => {
               </motion.div>
             </>
           )}
-        </motion.div>
-        
-        {showVideoCall && selectedEventId && (
-          <VideoCallModal
-            eventId={selectedEventId}
-            onClose={() => {
-              setShowVideoCall(false);
-              setSelectedEventId(null);
-            }}
-          />
-        )}
+          
+          {showVideoCall && selectedEventId && (
+            <VideoCallModal
+              eventId={selectedEventId}
+              onClose={() => {
+                setShowVideoCall(false);
+                setSelectedEventId(null);
+              }}
+            />
+          )}
+        </div>
       </div>
     </Layout>
   );

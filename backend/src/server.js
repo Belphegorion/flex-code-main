@@ -34,6 +34,7 @@ import badgeRoutes from './routes/badges.js';
 import documentRoutes from './routes/documents.js';
 import analyticsRoutes from './routes/analytics.js';
 import coOrganizerRoutes from './routes/coOrganizers.js';
+import workerDirectoryRoutes from './routes/workerDirectory.js';
 
 dotenv.config();
 
@@ -234,6 +235,7 @@ app.use('/api/badges', badgeRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/co-organizers', coOrganizerRoutes);
+app.use('/api/worker-directory', workerDirectoryRoutes);
 
 // 404 handler
 app.use((req, res) => {

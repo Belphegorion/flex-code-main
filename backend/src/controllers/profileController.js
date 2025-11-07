@@ -55,7 +55,22 @@ export const getMyProfile = async (req, res) => {
       .populate('userId', 'name email ratingAvg totalJobs badges kycStatus');
 
     if (!profile) {
-      return res.status(404).json({ message: 'Profile not found' });
+      // Return empty profile for non-workers instead of 404
+      const user = await User.findById(req.userId).select('name email ratingAvg totalJobs badges kycStatus');
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      return res.json({ 
+        profile: {
+          userId: user,
+          skills: [],
+          bio: '',
+          workExperience: [],
+          education: [],
+          portfolio: [],
+          certifications: []
+        }
+      });
     }
 
     res.json({ profile });
@@ -124,8 +139,12 @@ export const uploadVideo = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error uploading video', error: error.message });
   } finally {
-    if (req.file) {
-      fs.unlinkSync(req.file.path);
+    if (req.file && fs.existsSync(req.file.path)) {
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (err) {
+        console.error('Error deleting temp file:', err);
+      }
     }
   }
 };

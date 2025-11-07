@@ -112,14 +112,15 @@ const ProfileView = () => {
 
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
+        <div className="max-w-6xl mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="card p-8"
+          className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-8"
         >
           <div className="flex items-start gap-6 mb-8">
-            <div className="w-24 h-24 bg-primary-600 text-white rounded-full flex items-center justify-center text-3xl font-bold overflow-hidden">
+            <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-500 text-white rounded-full flex items-center justify-center text-2xl font-bold overflow-hidden flex-shrink-0">
               {profile.userId?.profilePhoto ? (
                 <img src={profile.userId.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
               ) : (
@@ -127,44 +128,66 @@ const ProfileView = () => {
               )}
             </div>
             <div className="flex-1">
-              <div className="flex items-center justify-between mb-2">
-                <h1 className="text-4xl font-bold">{profile.userId?.name || 'User'}</h1>
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{profile.userId?.name || 'User'}</h1>
+                  <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                    {profile.location?.city && (
+                      <div className="flex items-center gap-1">
+                        <FiMapPin size={14} />
+                        <span>{profile.location.city}</span>
+                      </div>
+                    )}
+                    {profile.userId?.ratingAvg > 0 && (
+                      <div className="flex items-center gap-1">
+                        <FiStar size={14} className="text-yellow-500 fill-yellow-500" />
+                        <span className="font-medium">{profile.userId.ratingAvg.toFixed(1)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
                 {isOwnProfile && (
-                  <Link to="/profile/edit" className="btn-primary flex items-center gap-2">
-                    <FiEdit /> Edit Profile
+                  <Link to="/profile/edit" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg flex items-center gap-2 transition-colors">
+                    <FiEdit size={16} /> Edit
                   </Link>
-                )}
-              </div>
-              <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
-                {profile.location?.city && (
-                  <div className="flex items-center gap-1">
-                    <FiMapPin size={16} />
-                    <span>{profile.location.city}</span>
-                  </div>
-                )}
-                {profile.userId?.ratingAvg > 0 && (
-                  <div className="flex items-center gap-1">
-                    <FiStar size={16} className="text-yellow-400" />
-                    <span>{profile.userId.ratingAvg.toFixed(1)}</span>
-                  </div>
                 )}
               </div>
             </div>
           </div>
 
           {profile.bio && (
-            <div className="mb-8">
-              <h2 className="text-2xl font-semibold mb-2">About</h2>
-              <p className="text-gray-700 dark:text-gray-300">{profile.bio}</p>
+            <div className="mb-8 p-6 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">About</h2>
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{profile.bio}</p>
             </div>
           )}
 
-          {profile.workExperience?.length > 0 && <WorkExperienceSection experience={profile.workExperience} />}
-          {profile.education?.length > 0 && <EducationSection education={profile.education} />}
-          {profile.portfolio?.length > 0 && <PortfolioSection portfolio={profile.portfolio} />}
-          {profile.certifications?.length > 0 && <CertificationsSection certifications={profile.certifications} />}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {profile.workExperience?.length > 0 && (
+              <div className="p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <WorkExperienceSection experience={profile.workExperience} />
+              </div>
+            )}
+            {profile.education?.length > 0 && (
+              <div className="p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <EducationSection education={profile.education} />
+              </div>
+            )}
+          </div>
+
+          {profile.portfolio?.length > 0 && (
+            <div className="mt-6 p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+              <PortfolioSection portfolio={profile.portfolio} />
+            </div>
+          )}
+          {profile.certifications?.length > 0 && (
+            <div className="mt-6 p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+              <CertificationsSection certifications={profile.certifications} />
+            </div>
+          )}
 
         </motion.div>
+        </div>
       </div>
     </Layout>
   );

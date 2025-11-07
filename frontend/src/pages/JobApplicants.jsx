@@ -87,29 +87,44 @@ export default function JobApplicants() {
 
   return (
     <Layout>
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <Link to={`/jobs/${jobId}`} className="text-primary-600 dark:text-primary-400 hover:underline mb-2 inline-block">
-            ← Back to Job
-          </Link>
-          <h1 className="text-3xl font-bold mb-2">Applicants for {job?.title}</h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            {applications.length} total applications • {pendingApps.length} pending • {acceptedApps.length} accepted
-          </p>
-        </div>
-
-        {/* Pending Applications */}
-        {pendingApps.length > 0 && (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8">
+        <div className="max-w-6xl mx-auto px-4">
+          {/* Header */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Pending Applications</h2>
-            <div className="space-y-4">
+            <Link to={`/jobs/${jobId}`} className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium mb-4">
+              ← Back to Job
+            </Link>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+              <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Applicants for {job?.title}</h1>
+              <div className="flex gap-6 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                  <span className="text-gray-600 dark:text-gray-400">{applications.length} total</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                  <span className="text-gray-600 dark:text-gray-400">{pendingApps.length} pending</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                  <span className="text-gray-600 dark:text-gray-400">{acceptedApps.length} accepted</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Pending Applications */}
+          {pendingApps.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Pending Applications</h2>
+              <div className="space-y-4">
               {pendingApps.map((app, idx) => (
                 <motion.div
                   key={app._id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.1 }}
-                  className="card p-6"
+                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border-l-4 border-yellow-400 hover:shadow-xl transition-all"
                 >
                   <div className="flex items-start gap-4">
                     <ProfileImageLink
@@ -159,22 +174,22 @@ export default function JobApplicants() {
                         </div>
                       )}
 
-                      <div className="flex gap-2">
+                      <div className="flex gap-3">
                         <button
                           onClick={() => handleAccept(app._id)}
-                          className="btn-primary flex items-center gap-2"
+                          className="px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-semibold hover:from-green-600 hover:to-emerald-600 transition-all shadow-md flex items-center gap-2"
                         >
                           <FiCheck /> Accept
                         </button>
                         <button
                           onClick={() => handleDecline(app._id)}
-                          className="btn-secondary flex items-center gap-2"
+                          className="px-6 py-2.5 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl font-semibold hover:from-red-600 hover:to-pink-600 transition-all shadow-md flex items-center gap-2"
                         >
                           <FiX /> Decline
                         </button>
                         <Link
                           to={`/profile/${app.proId._id}`}
-                          className="btn-secondary"
+                          className="px-6 py-2.5 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all"
                         >
                           View Profile
                         </Link>
@@ -187,13 +202,13 @@ export default function JobApplicants() {
           </div>
         )}
 
-        {/* Accepted Applications */}
-        {acceptedApps.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Accepted Workers</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Accepted Applications */}
+          {acceptedApps.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Accepted Workers</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {acceptedApps.map(app => (
-                <div key={app._id} className="card p-4">
+                <div key={app._id} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 border-l-4 border-green-400">
                   <div className="flex items-center gap-3 mb-3">
                     <ProfileImageLink
                       userId={app.proId?._id}
@@ -209,14 +224,14 @@ export default function JobApplicants() {
                   <div className="space-y-2">
                     <button
                       onClick={() => navigate('/groups')}
-                      className="btn-primary w-full flex items-center justify-center gap-2"
+                      className="w-full px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md flex items-center justify-center gap-2"
                     >
                       <FiMessageCircle /> Event Group Chat
                     </button>
                     {job?.eventId && (
                       <button
                         onClick={() => elevateWorker(app.proId._id)}
-                        className="btn-secondary w-full"
+                        className="w-full px-4 py-2.5 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all"
                       >
                         Elevate to Co-Organizer
                       </button>
@@ -228,13 +243,13 @@ export default function JobApplicants() {
           </div>
         )}
 
-        {/* Declined Applications */}
-        {declinedApps.length > 0 && (
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Declined Applications</h2>
-            <div className="space-y-2">
+          {/* Declined Applications */}
+          {declinedApps.length > 0 && (
+            <div>
+              <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Declined Applications</h2>
+              <div className="space-y-2">
               {declinedApps.map(app => (
-                <div key={app._id} className="card p-4 opacity-60">
+                <div key={app._id} className="bg-white dark:bg-gray-800 rounded-xl shadow p-4 opacity-60 border-l-4 border-gray-300">
                   <div className="flex items-center gap-3">
                     <ProfileImageLink
                       userId={app.proId?._id}
@@ -253,11 +268,12 @@ export default function JobApplicants() {
           </div>
         )}
 
-        {applications.length === 0 && (
-          <div className="card p-12 text-center">
-            <p className="text-gray-500">No applications yet</p>
-          </div>
-        )}
+          {applications.length === 0 && (
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-12 text-center">
+              <p className="text-gray-500 text-lg">No applications yet</p>
+            </div>
+          )}
+        </div>
       </div>
     </Layout>
   );

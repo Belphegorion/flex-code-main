@@ -404,7 +404,7 @@ export const bulkAcceptApplications = async (req, res) => {
           throw new Error('Unauthorized to accept applications for this job');
         }
         
-        const availablePositions = job.workersNeeded - (job.positionsFilled || 0);
+        const availablePositions = job.totalPositions - (job.positionsFilled || 0);
         if (apps.length > availablePositions) {
           throw new Error(`Job "${job.title}" only has ${availablePositions} positions available`);
         }

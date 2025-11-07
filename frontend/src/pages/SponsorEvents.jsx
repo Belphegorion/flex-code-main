@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiCalendar, FiMapPin, FiUsers, FiDollarSign, FiArrowLeft, FiVideo } from 'react-icons/fi';
+import { FiCalendar, FiMapPin, FiUsers, FiDollarSign, FiArrowLeft, FiVideo, FiCheckCircle } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import Layout from '../components/common/Layout';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -244,64 +244,86 @@ export default function SponsorEvents() {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">Available Events for Sponsorship</h1>
-
-        {events.length === 0 ? (
-          <div className="card text-center py-12">
-            <FiCalendar className="mx-auto text-gray-400 mb-4" size={48} />
-            <h2 className="text-xl font-semibold mb-2">No Events Available</h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              There are currently no events available for sponsorship.
-            </p>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Sponsor Events</h1>
+            <p className="text-gray-600 dark:text-gray-400">Support amazing events and grow your brand</p>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {events.map((event, idx) => (
-              <motion.div
-                key={event._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className="card hover:shadow-xl transition-shadow cursor-pointer"
-                onClick={() => navigate(`/sponsor/events/${event._id}`)}
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-semibold">{event.title}</h3>
-                  {event.videoCallActive && (
-                    <div className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs flex items-center gap-1">
-                      <FiVideo size={12} /> Live
+
+          {events.length === 0 ? (
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 text-center py-16">
+              <FiCalendar className="mx-auto text-gray-400 mb-4" size={48} />
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Events Available</h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                There are currently no events available for sponsorship.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {events.map((event, idx) => (
+                <motion.div
+                  key={event._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  whileHover={{ y: -4 }}
+                  className="cursor-pointer"
+                  onClick={() => navigate(`/sponsor/events/${event._id}`)}
+                >
+                  <div className="h-full bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600 transition-all duration-200 hover:shadow-lg overflow-hidden">
+                    <div className="p-6">
+                      <div className="flex items-start justify-between mb-3">
+                        <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium rounded-full">
+                          Sponsorship
+                        </span>
+                        {event.videoCallActive && (
+                          <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full flex items-center gap-1">
+                            <FiVideo size={12} /> Live
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-start gap-3 mb-3">
+                        <FiCheckCircle className="text-indigo-600 dark:text-indigo-400 mt-1 flex-shrink-0" size={20} />
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                            {event.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                            {event.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 mb-4 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center">
+                          <FiCalendar className="mr-2" size={14} />
+                          <span>{new Date(event.dateStart).toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <FiMapPin className="mr-2" size={14} />
+                          <span className="line-clamp-1">{event.location?.address || 'Location TBD'}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <FiUsers className="mr-2" size={14} />
+                          <span>{event.tickets?.totalDispersed || 0} attendees</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">by {event.organizerId?.name}</span>
+                        <span className="text-indigo-600 dark:text-indigo-400 font-medium text-sm">
+                          View template →
+                        </span>
+                      </div>
                     </div>
-                  )}
-                </div>
-
-                <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                  {event.description}
-                </p>
-
-                <div className="space-y-2 mb-4 text-sm">
-                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                    <FiCalendar size={16} />
-                    <span>{new Date(event.dateStart).toLocaleDateString()}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                    <FiMapPin size={16} />
-                    <span>{event.location?.address}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                    <FiUsers size={16} />
-                    <span>{event.tickets?.totalDispersed || 0} expected attendees</span>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center pt-4 border-t dark:border-gray-700">
-                  <span className="text-sm text-gray-500">by {event.organizerId?.name}</span>
-                  <span className="text-primary-600 font-medium text-sm">View Details →</span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </Layout>
   );
