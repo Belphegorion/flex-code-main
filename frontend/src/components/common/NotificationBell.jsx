@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiBell, FiClock, FiUsers, FiMessageSquare, FiCalendar, FiQrCode } from 'react-icons/fi';
+import { FiBell, FiClock, FiUsers, FiMessageSquare, FiCalendar, FiHash } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import socketService from '../../services/socket';
@@ -114,7 +114,7 @@ export default function NotificationBell() {
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0 mt-1">
                         {notif.type === 'work_access' && <FiClock className="text-green-500" size={18} />}
-                        {notif.type === 'qr_code' && <FiQrCode className="text-blue-500" size={18} />}
+                        {notif.type === 'qr_code' && <FiHash className="text-blue-500" size={18} />}
                         {notif.type === 'group' && <FiUsers className="text-purple-500" size={18} />}
                         {notif.type === 'message' && <FiMessageSquare className="text-blue-500" size={18} />}
                         {notif.type === 'meeting' && <FiCalendar className="text-orange-500" size={18} />}
