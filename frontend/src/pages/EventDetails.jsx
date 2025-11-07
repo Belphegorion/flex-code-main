@@ -19,6 +19,7 @@ export default function EventDetails() {
   useEffect(() => {
     fetchEventDetails();
     fetchEventJobs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId]);
 
   const fetchEventDetails = async () => {
@@ -43,7 +44,7 @@ export default function EventDetails() {
   };
 
   const handleDeleteJob = async (jobId) => {
-    if (!confirm('Delete this job? Workers will be notified.')) return;
+    if (!window.confirm('Delete this job? Workers will be notified.')) return;
     
     try {
       await api.delete(`/events/${eventId}/jobs/${jobId}`);
@@ -94,7 +95,7 @@ export default function EventDetails() {
 
             {/* Info Cards */}
             <div className="p-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl p-5 border border-blue-100 dark:border-blue-800">
                   <div className="flex items-center gap-3">
                     <div className="p-3 bg-blue-600 rounded-lg">
@@ -132,10 +133,77 @@ export default function EventDetails() {
                     </div>
                   </div>
                 </div>
+                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-xl p-5 border border-yellow-100 dark:border-yellow-800">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-yellow-600 rounded-lg">
+                      <FiUsers className="text-white" size={24} />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Attendees</p>
+                      <p className="font-semibold text-gray-900 dark:text-white">
+                        {event?.attendees?.expectedCount || 0}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
+              {/* Event Details Section */}
+              <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Venue Information */}
+                {event?.venue?.name && (
+                  <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-5">
+                    <h3 className="font-semibold text-lg mb-3">Venue Information</h3>
+                    <div className="space-y-2 text-sm">
+                      <p><strong>Name:</strong> {event.venue.name}</p>
+                      <p><strong>Type:</strong> {event.venue.type}</p>
+                      {event.venue.capacity && <p><strong>Capacity:</strong> {event.venue.capacity} people</p>}
+                      {event.venue.facilities?.length > 0 && (
+                        <div>
+                          <strong>Facilities:</strong>
+                          <div className="flex flex-wrap gap-2 mt-1">
+                            {event.venue.facilities.map((f, i) => (
+                              <span key={i} className="px-2 py-1 bg-white dark:bg-gray-800 rounded text-xs">{f}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Event Type & Settings */}
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-5">
+                  <h3 className="font-semibold text-lg mb-3">Event Details</h3>
+                  <div className="space-y-2 text-sm">
+                    <p><strong>Type:</strong> {event?.eventType}</p>
+                    <p><strong>Status:</strong> <span className="px-2 py-1 bg-white dark:bg-gray-800 rounded text-xs">{event?.status}</span></p>
+                    {event?.eventSettings?.isPublic !== undefined && (
+                      <p><strong>Visibility:</strong> {event.eventSettings.isPublic ? 'Public' : 'Private'}</p>
+                    )}
+                    {event?.tickets?.pricePerTicket > 0 && (
+                      <p><strong>Ticket Price:</strong> ${event.tickets.pricePerTicket}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Attendee Interests */}
+              {event?.attendees?.demographics?.interests?.length > 0 && (
+                <div className="mt-6 bg-gray-50 dark:bg-gray-700 rounded-xl p-5">
+                  <h3 className="font-semibold text-lg mb-3">Target Audience</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {event.attendees.demographics.interests.map((interest, i) => (
+                      <span key={i} className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded-full text-sm">
+                        {interest}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Overall Progress */}
-              <div className="mt-8">
+              <div className="mt-6">
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-lg font-semibold text-gray-900 dark:text-white">
                     Overall Progress

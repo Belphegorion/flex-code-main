@@ -45,113 +45,123 @@ const OrganizerDashboard = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          {/* Header */}
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Manage your events and workforce</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Manage your events and workforce</p>
             </div>
-            <Link to="/events/create" className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-lg flex items-center gap-2 transition-all">
+            <Link to="/events/create" className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors">
               <FiPlus size={18} /> Create Event
             </Link>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Total Events</span>
-                <FiCalendar className="text-indigo-600" size={20} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <FiCalendar className="text-gray-700 dark:text-gray-300" size={20} />
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Total Events</p>
               </div>
-              <div className="text-3xl font-bold text-gray-900 dark:text-white">{stats.total}</div>
-              <div className="text-xs text-green-600 mt-1">↑ 8% vs last month</div>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
+              <p className="text-xs text-green-600 dark:text-green-400 mt-2">↑ 8% vs last month</p>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Upcoming</span>
-                <FiClock className="text-blue-600" size={20} />
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <FiClock className="text-gray-700 dark:text-gray-300" size={20} />
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Upcoming</p>
               </div>
-              <div className="text-3xl font-bold text-gray-900 dark:text-white">{stats.upcoming}</div>
-              <div className="text-xs text-gray-500 mt-1">Next 30 days</div>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.upcoming}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">Next 30 days</p>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Ongoing</span>
-                <FiCheckCircle className="text-green-600" size={20} />
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <FiCheckCircle className="text-gray-700 dark:text-gray-300" size={20} />
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Ongoing</p>
               </div>
-              <div className="text-3xl font-bold text-gray-900 dark:text-white">{stats.ongoing}</div>
-              <div className="text-xs text-green-600 mt-1">Active now</div>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.ongoing}</p>
+              <p className="text-xs text-green-600 dark:text-green-400 mt-2">Active now</p>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Completed</span>
-                <FiTrendingUp className="text-purple-600" size={20} />
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <FiTrendingUp className="text-gray-700 dark:text-gray-300" size={20} />
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Completed</p>
               </div>
-              <div className="text-3xl font-bold text-gray-900 dark:text-white">{stats.completed}</div>
-              <div className="text-xs text-gray-500 mt-1">All time</div>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.completed}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">All time</p>
             </motion.div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Recent Activities */}
-            <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-              <div className="flex justify-between items-center mb-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Activities</h2>
-                <Link to="/worker-directory" className="text-sm text-indigo-600 hover:text-indigo-700">See all</Link>
+                <Link to="/events" className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium">See Details</Link>
               </div>
-              {loading ? (
-                <LoadingSpinner />
-              ) : events.length === 0 ? (
-                <div className="text-center py-12">
-                  <FiCalendar className="mx-auto text-gray-400 mb-3" size={40} />
-                  <p className="text-gray-600 dark:text-gray-400 text-sm">No events yet</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {events.slice(0, 5).map((event, idx) => (
-                    <motion.div
-                      key={event._id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.05 }}
-                      className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors"
-                      onClick={() => window.location.href = `/events/${event._id}`}
-                    >
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center flex-shrink-0">
-                        <FiCalendar className="text-white" size={18} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{event.title}</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
-                          {new Date(event.dateStart).toLocaleDateString()} • {event.location?.address || 'Location TBD'}
-                        </p>
-                      </div>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(event.status)}`}>
-                        {event.status}
-                      </span>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
+              <div className="p-6">
+                {loading ? (
+                  <LoadingSpinner />
+                ) : events.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="inline-flex p-4 bg-gray-100 dark:bg-gray-800 rounded-full mb-3">
+                      <FiCalendar className="text-gray-400" size={32} />
+                    </div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No events yet</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {events.slice(0, 5).map((event, idx) => (
+                      <motion.div
+                        key={event._id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: idx * 0.03 }}
+                        className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
+                        onClick={() => window.location.href = `/events/${event._id}`}
+                      >
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
+                            <FiCalendar className="text-gray-600 dark:text-gray-400" size={16} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{event.title}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                              {new Date(event.dateStart).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getStatusBadge(event.status)}`}>
+                          {event.status}
+                        </span>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="space-y-4">
-              <div className="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl p-6 text-white">
-                <h3 className="text-lg font-semibold mb-2">Worker Directory</h3>
+            <div className="space-y-5">
+              <div className="bg-indigo-600 dark:bg-indigo-700 rounded-lg p-6 text-white">
+                <h3 className="text-base font-semibold mb-1">Worker Directory</h3>
                 <p className="text-sm text-indigo-100 mb-4">Find and hire talented workers</p>
-                <Link to="/worker-directory" className="block w-full text-center px-4 py-2 bg-white text-indigo-600 font-medium rounded-lg hover:bg-indigo-50 transition-colors">
+                <Link to="/worker-directory" className="block w-full text-center px-4 py-2 bg-white text-indigo-600 font-medium text-sm rounded-lg hover:bg-indigo-50 transition-colors">
                   Browse Workers
                 </Link>
               </div>
 
-              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Stats</h3>
+              <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4">Quick Stats</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600 dark:text-gray-400">Total Workers</span>

@@ -40,12 +40,15 @@ const profileSchema = new mongoose.Schema({
     unique: true
   },
   skills: [{
-    type: String,
-    required: true
+    type: String
   }],
   bio: {
     type: String,
     maxlength: 1500
+  },
+  tagline: {
+    type: String,
+    maxlength: 100
   },
   videoIntroUrl: {
     type: String
@@ -55,6 +58,7 @@ const profileSchema = new mongoose.Schema({
     city: String,
     state: String,
     country: String,
+    zipCode: String,
     lat: {
       type: Number,
       min: -90,
@@ -87,7 +91,30 @@ const profileSchema = new mongoose.Schema({
     type: Number,
     min: 0
   },
-  // New structured fields
+  languages: [{
+    language: String,
+    proficiency: { type: String, enum: ['basic', 'conversational', 'fluent', 'native'] }
+  }],
+  socialLinks: {
+    linkedin: String,
+    twitter: String,
+    facebook: String,
+    instagram: String,
+    github: String,
+    portfolio: String,
+    website: String
+  },
+  preferences: {
+    jobTypes: [String],
+    industries: [String],
+    travelWillingness: { type: String, enum: ['no', 'local', 'regional', 'national', 'international'] },
+    remoteWork: Boolean,
+    teamSize: { type: String, enum: ['solo', 'small', 'medium', 'large', 'any'] }
+  },
+  yearsOfExperience: {
+    type: Number,
+    min: 0
+  },
   workExperience: [workExperienceSchema],
   education: [educationSchema],
   portfolio: [portfolioItemSchema],

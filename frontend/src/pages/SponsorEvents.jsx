@@ -244,79 +244,77 @@ export default function SponsorEvents() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Sponsor Events</h1>
-            <p className="text-gray-600 dark:text-gray-400">Support amazing events and grow your brand</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Sponsor Events</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Support amazing events and grow your brand</p>
           </div>
 
           {events.length === 0 ? (
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 text-center py-16">
-              <FiCalendar className="mx-auto text-gray-400 mb-4" size={48} />
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Events Available</h2>
-              <p className="text-gray-600 dark:text-gray-400">
+            <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 text-center py-16">
+              <div className="inline-flex p-4 bg-gray-100 dark:bg-gray-800 rounded-full mb-3">
+                <FiCalendar className="text-gray-400" size={32} />
+              </div>
+              <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-1">No Events Available</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 There are currently no events available for sponsorship.
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {events.map((event, idx) => (
                 <motion.div
                   key={event._id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  whileHover={{ y: -4 }}
+                  transition={{ delay: idx * 0.03 }}
                   className="cursor-pointer"
                   onClick={() => navigate(`/sponsor/events/${event._id}`)}
                 >
-                  <div className="h-full bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600 transition-all duration-200 hover:shadow-lg overflow-hidden">
-                    <div className="p-6">
-                      <div className="flex items-start justify-between mb-3">
-                        <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium rounded-full">
+                  <div className="h-full bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md transition-all duration-200">
+                    <div className="p-5">
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-medium rounded">
                           Sponsorship
                         </span>
                         {event.videoCallActive && (
-                          <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full flex items-center gap-1">
-                            <FiVideo size={12} /> Live
+                          <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded flex items-center gap-1">
+                            <FiVideo size={10} /> Live
                           </span>
                         )}
                       </div>
 
-                      <div className="flex items-start gap-3 mb-3">
-                        <FiCheckCircle className="text-indigo-600 dark:text-indigo-400 mt-1 flex-shrink-0" size={20} />
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                      <div className="mb-4">
+                        <div className="flex items-start gap-2 mb-2">
+                          <FiCheckCircle className="text-gray-400 mt-0.5 flex-shrink-0" size={16} />
+                          <h3 className="text-base font-semibold text-gray-900 dark:text-white leading-tight">
                             {event.title}
                           </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                            {event.description}
-                          </p>
                         </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 ml-6">
+                          {event.description}
+                        </p>
                       </div>
 
-                      <div className="space-y-2 mb-4 text-sm text-gray-600 dark:text-gray-400">
-                        <div className="flex items-center">
-                          <FiCalendar className="mr-2" size={14} />
+                      <div className="space-y-2 mb-4 text-xs text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center gap-2">
+                          <FiCalendar size={14} className="text-gray-400" />
                           <span>{new Date(event.dateStart).toLocaleDateString()}</span>
                         </div>
-                        <div className="flex items-center">
-                          <FiMapPin className="mr-2" size={14} />
+                        <div className="flex items-center gap-2">
+                          <FiMapPin size={14} className="text-gray-400" />
                           <span className="line-clamp-1">{event.location?.address || 'Location TBD'}</span>
                         </div>
-                        <div className="flex items-center">
-                          <FiUsers className="mr-2" size={14} />
+                        <div className="flex items-center gap-2">
+                          <FiUsers size={14} className="text-gray-400" />
                           <span>{event.tickets?.totalDispersed || 0} attendees</span>
                         </div>
                       </div>
 
-                      <div className="pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">by {event.organizerId?.name}</span>
-                        <span className="text-indigo-600 dark:text-indigo-400 font-medium text-sm">
-                          View template →
-                        </span>
-                      </div>
+                      <button className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 text-indigo-600 dark:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium text-sm rounded transition-colors">
+                        View template
+                      </button>
                     </div>
                   </div>
                 </motion.div>

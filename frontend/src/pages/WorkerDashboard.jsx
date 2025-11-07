@@ -70,142 +70,141 @@ export default function WorkerDashboard() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          {/* Header */}
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Dashboard</h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Track your jobs and earnings</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Track your jobs and earnings</p>
             </div>
             <StartWorkButton />
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Active Jobs</span>
-                <FiBriefcase className="text-green-600" size={20} />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <FiBriefcase className="text-gray-700 dark:text-gray-300" size={20} />
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Active Jobs</p>
               </div>
-              <div className="text-3xl font-bold text-gray-900 dark:text-white">{acceptedJobs.length}</div>
-              <div className="text-xs text-green-600 mt-1">Currently working</div>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">{acceptedJobs.length}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">Currently working</p>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Pending</span>
-                <FiClock className="text-yellow-600" size={20} />
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <FiClock className="text-gray-700 dark:text-gray-300" size={20} />
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Pending</p>
               </div>
-              <div className="text-3xl font-bold text-gray-900 dark:text-white">
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">
                 {applications.filter(app => app.status === 'pending').length}
-              </div>
-              <div className="text-xs text-gray-500 mt-1">Awaiting response</div>
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">Awaiting response</p>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Accepted</span>
-                <FiCheckCircle className="text-indigo-600" size={20} />
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <FiCheckCircle className="text-gray-700 dark:text-gray-300" size={20} />
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Accepted</p>
               </div>
-              <div className="text-3xl font-bold text-gray-900 dark:text-white">
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">
                 {applications.filter(app => app.status === 'accepted').length}
-              </div>
-              <div className="text-xs text-indigo-600 mt-1">↑ This month</div>
+              </p>
+              <p className="text-xs text-green-600 dark:text-green-400 mt-2">↑ 8% vs last month</p>
             </motion.div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Active Jobs */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
-              <FiCheckCircle className="text-green-600 dark:text-green-400" />
-              Active Jobs ({acceptedJobs.length})
-            </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Active Jobs ({acceptedJobs.length})</h2>
+            </div>
+            <div className="p-6">
             
-            {acceptedJobs.length === 0 ? (
-              <div className="text-center py-12">
-                <FiCalendar className="mx-auto text-gray-400 dark:text-gray-600 mb-4" size={48} />
-                <p className="text-gray-500 dark:text-gray-400 mb-2">No active jobs yet</p>
-                <button onClick={() => navigate('/jobs')} className="mt-4 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
-                  Find Work
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4 max-h-96 overflow-y-auto">
-                {acceptedJobs.map(job => (
-                  <div key={job._id} className="p-4 border-2 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/10 rounded-lg hover:shadow-md transition-all">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">{job.title}</h3>
-                      <span className="text-green-600 dark:text-green-400 font-bold text-lg">${job.payPerPerson}/hr</span>
-                    </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      {job.eventId?.title}
-                    </p>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-1 text-gray-700 dark:text-gray-300">
-                        <FiCalendar size={14} />
-                        {new Date(job.eventId?.dateStart).toLocaleDateString()}
-                      </span>
-                      <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-xs font-medium">
-                        Active
-                      </span>
-                    </div>
+              {acceptedJobs.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="inline-flex p-4 bg-gray-100 dark:bg-gray-800 rounded-full mb-3">
+                    <FiCalendar className="text-gray-400" size={32} />
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-            {/* Applications */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
-              <FiClock className="text-blue-600 dark:text-blue-400" />
-              My Applications ({applications.length})
-            </h2>
-            
-            {applications.length === 0 ? (
-              <div className="text-center py-12">
-                <FiClock className="mx-auto text-gray-400 dark:text-gray-600 mb-4" size={48} />
-                <p className="text-gray-500 dark:text-gray-400 mb-2">No applications yet</p>
-                <button onClick={() => navigate('/jobs')} className="mt-4 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
-                  Find Work
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4 max-h-96 overflow-y-auto">
-                {applications.map(application => (
-                  <div key={application._id} className="p-4 border border-gray-200 dark:border-gray-800 rounded-lg hover:shadow-md transition-all bg-gray-50 dark:bg-gray-800/50">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">{application.jobId?.title}</h3>
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(application.status)}
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusBadge(application.status)}`}>
-                          {application.status}
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">No active jobs yet</p>
+                  <button onClick={() => navigate('/jobs')} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors">
+                    Find Work
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {acceptedJobs.map(job => (
+                    <div key={job._id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-semibold text-gray-900 dark:text-white text-sm">{job.title}</h3>
+                        <span className="text-gray-900 dark:text-white font-semibold text-sm">${job.payPerPerson}/hr</span>
+                      </div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                        {job.eventId?.title}
+                      </p>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                          <FiCalendar size={12} />
+                          {new Date(job.eventId?.dateStart).toLocaleDateString()}
+                        </span>
+                        <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded text-xs font-medium">
+                          Active
                         </span>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                      {application.jobId?.eventId?.title}
-                    </p>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Applied: {new Date(application.createdAt).toLocaleDateString()}
-                      </span>
-                      <span className="font-semibold text-gray-900 dark:text-gray-100">
-                        ${application.jobId?.payPerPerson}/hr
-                      </span>
-                    </div>
-                    {application.coverLetter && (
-                      <div className="mt-3 p-3 bg-white dark:bg-gray-900 rounded-lg text-sm border border-gray-200 dark:border-gray-700">
-                        <strong className="text-gray-900 dark:text-gray-100">Cover Letter:</strong>
-                        <p className="text-gray-600 dark:text-gray-400 mt-1">{application.coverLetter}</p>
-                      </div>
-                    )}
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+            <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">My Applications ({applications.length})</h2>
+            </div>
+            <div className="p-6">
+            
+              {applications.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="inline-flex p-4 bg-gray-100 dark:bg-gray-800 rounded-full mb-3">
+                    <FiClock className="text-gray-400" size={32} />
                   </div>
-                ))}
-              </div>
-            )}
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">No applications yet</p>
+                  <button onClick={() => navigate('/jobs')} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors">
+                    Find Work
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {applications.map(application => (
+                    <div key={application._id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-semibold text-gray-900 dark:text-white text-sm">{application.jobId?.title}</h3>
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getStatusBadge(application.status)}`}>
+                          {application.status}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                        {application.jobId?.eventId?.title}
+                      </p>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-gray-500 dark:text-gray-400">
+                          Applied: {new Date(application.createdAt).toLocaleDateString()}
+                        </span>
+                        <span className="font-semibold text-gray-900 dark:text-white">
+                          ${application.jobId?.payPerPerson}/hr
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             </div>
           </div>
         </div>

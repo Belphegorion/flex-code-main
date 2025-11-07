@@ -16,6 +16,7 @@ export default function JobApplicants() {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobId]);
 
   const fetchData = async () => {
@@ -135,10 +136,10 @@ export default function JobApplicants() {
                     />
                     
                     <div className="flex-1">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h3 className="text-xl font-semibold">{app.proId?.name}</h3>
-                          <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <h3 className="text-xl font-semibold mb-2">{app.proId?.name}</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600 dark:text-gray-400">
                             <span className="flex items-center gap-1">
                               <FiMail size={14} /> {app.proId?.email}
                             </span>
@@ -150,12 +151,38 @@ export default function JobApplicants() {
                           </div>
                         </div>
                         
-                        {app.proId?.ratingAvg > 0 && (
-                          <div className="flex items-center gap-1 text-yellow-500">
-                            <FiStar size={16} fill="currentColor" />
-                            <span className="font-semibold">{app.proId.ratingAvg.toFixed(1)}</span>
-                          </div>
-                        )}
+                        <div className="text-right">
+                          {app.proId?.ratingAvg > 0 && (
+                            <div className="flex items-center gap-1 text-yellow-500 mb-1">
+                              <FiStar size={16} fill="currentColor" />
+                              <span className="font-semibold">{app.proId.ratingAvg.toFixed(1)}</span>
+                              <span className="text-xs text-gray-500">({app.proId.totalRatings} reviews)</span>
+                            </div>
+                          )}
+                          {app.proId?.completedJobsCount > 0 && (
+                            <p className="text-xs text-gray-500">{app.proId.completedJobsCount} jobs completed</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Worker Stats & Badges */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div>
+                          <p className="text-xs text-gray-500">Experience</p>
+                          <p className="font-semibold text-sm">{app.proId?.yearsOfExperience || 0} years</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Reliability</p>
+                          <p className="font-semibold text-sm">{((app.proId?.reliabilityScore || 1) * 100).toFixed(0)}%</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Jobs Done</p>
+                          <p className="font-semibold text-sm">{app.proId?.completedJobsCount || 0}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">No Shows</p>
+                          <p className="font-semibold text-sm">{app.proId?.noShowCount || 0}</p>
+                        </div>
                       </div>
 
                       {app.proId?.badges?.length > 0 && (
