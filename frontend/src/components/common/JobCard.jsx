@@ -4,12 +4,18 @@ import { FiMapPin, FiCalendar, FiDollarSign, FiUsers } from 'react-icons/fi';
 import { getRelativeDistance } from '../../utils/distance';
 
 const JobCard = ({ job, showMatchScore = false, userLocation = null }) => {
+  if (!job) return null;
+  
   const statusColors = {
     open: 'badge-success',
     'in-progress': 'badge-warning',
     completed: 'badge-info',
-    cancelled: 'badge-danger'
+    cancelled: 'badge-danger',
+    closed: 'badge-secondary',
+    draft: 'badge-secondary'
   };
+  
+  const getStatusColor = (status) => statusColors[status] || 'badge-secondary';
 
   return (
     <motion.div
@@ -22,8 +28,8 @@ const JobCard = ({ job, showMatchScore = false, userLocation = null }) => {
       <div className="flex justify-between items-start mb-4">
         <div>
           <h3 className="text-xl font-semibold mb-2">{job.title}</h3>
-          <span className={`badge ${statusColors[job.status]}`}>
-            {job.status}
+          <span className={`badge ${getStatusColor(job.status)}`}>
+            {job.status || 'Unknown'}
           </span>
         </div>
         {showMatchScore && job.matchScore && (
@@ -51,15 +57,15 @@ const JobCard = ({ job, showMatchScore = false, userLocation = null }) => {
         </div>
         <div className="flex items-center">
           <FiCalendar className="mr-2" />
-          {new Date(job.dateStart).toLocaleDateString()}
+          {job.dateStart ? new Date(job.dateStart).toLocaleDateString() : 'TBD'}
         </div>
         <div className="flex items-center">
           <FiDollarSign className="mr-2" />
-          ₹{job.payPerPerson}
+          ${job.payPerPerson || 0}
         </div>
         <div className="flex items-center">
           <FiUsers className="mr-2" />
-          {job.positionsFilled}/{job.totalPositions} filled
+          {job.positionsFilled || 0}/{job.totalPositions || 0} filled
         </div>
       </div>
 

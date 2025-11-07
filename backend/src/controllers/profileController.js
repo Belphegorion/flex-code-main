@@ -305,17 +305,17 @@ export const getMyFullProfile = async (req, res) => {
 
 export const updateMyProfile = async (req, res) => {
   try {
-    const { name, phone, bio, skills, location, availability, hourlyRate, experience } = req.body;
+    const { name, phone, bio, skills, location, availability, hourlyRate, experience, socialLinks } = req.body;
 
     const user = await User.findByIdAndUpdate(
       req.userId,
-      { name, phone },
+      { name, phone, bio, location, socialLinks },
       { new: true }
     ).select('-password -refreshToken');
 
     const profile = await Profile.findOneAndUpdate(
       { userId: req.userId },
-      { bio, skills, location, availability, hourlyRate, experience },
+      { skills, availability, hourlyRate, experience },
       { new: true, upsert: true }
     );
 

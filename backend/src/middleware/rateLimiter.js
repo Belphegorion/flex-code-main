@@ -61,6 +61,51 @@ export const websocketLimiter = rateLimit({
   skipFailedRequests: true,
 });
 
+// Critical endpoint limiters
+export const jobApplicationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 50, // 50 applications per hour per user
+  message: {
+    error: 'Too many job applications, please try again later.'
+  },
+  keyGenerator: (req) => req.user ? req.user.id : req.ip,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+export const fileUploadLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 20, // 20 uploads per hour per user
+  message: {
+    error: 'Too many file uploads, please try again later.'
+  },
+  keyGenerator: (req) => req.user ? req.user.id : req.ip,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+export const jobCreationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10, // 10 job posts per hour per organizer
+  message: {
+    error: 'Too many job postings, please try again later.'
+  },
+  keyGenerator: (req) => req.user ? req.user.id : req.ip,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+export const messagingLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 60, // 60 messages per minute
+  message: {
+    error: 'Too many messages, please slow down.'
+  },
+  keyGenerator: (req) => req.user ? req.user.id : req.ip,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Helper function to handle rate limit errors
 export const handleRateLimitError = (err, req, res, next) => {
   if (err instanceof Error && err.status === 429) {

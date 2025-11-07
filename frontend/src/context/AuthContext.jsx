@@ -19,12 +19,16 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (user?.id) {
+      // Disconnect existing connection before reconnecting
+      socketService.disconnect();
       socketService.connect(user.id);
+      return () => {
+        socketService.disconnect();
+      };
+    } else {
+      socketService.disconnect();
     }
-    return () => {
-      if (!user) socketService.disconnect();
-    };
-  }, [user]);
+  }, [user?.id]);
 
   const loadUser = async () => {
     try {

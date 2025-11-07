@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import compression from 'compression';
 import morgan from 'morgan';
+import mongoose from 'mongoose';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import connectDB from './config/database.js';
@@ -10,6 +11,8 @@ import errorHandler from './middleware/errorHandler.js';
 import { startScheduledJobs } from './utils/scheduler.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
 import { securityHeaders, customSecurity } from './middleware/security.js';
+import { createDatabaseIndexes } from './utils/createIndexes.js';
+import AuditLogger from './utils/auditLogger.js';
 
 // Routes
 import authRoutes from './routes/auth.js';
@@ -29,6 +32,8 @@ import sponsorRoutes from './routes/sponsors.js';
 import workScheduleRoutes from './routes/workSchedule.js';
 import badgeRoutes from './routes/badges.js';
 import documentRoutes from './routes/documents.js';
+import analyticsRoutes from './routes/analytics.js';
+import coOrganizerRoutes from './routes/coOrganizers.js';
 
 dotenv.config();
 
@@ -40,6 +45,11 @@ if (!process.env.JWT_SECRET) {
 
 if (!process.env.JWT_REFRESH_SECRET) {
   console.error('CRITICAL: JWT_REFRESH_SECRET environment variable is not set!');
+  process.exit(1);
+}
+
+if (!process.env.MONGO_URI && !process.env.MONGODB_URI) {
+  console.error('CRITICAL: MONGO_URI or MONGODB_URI environment variable is not set!');
   process.exit(1);
 }
 
@@ -61,15 +71,39 @@ const io = new Server(httpServer, {
   cors: {
     origin: [
       process.env.FRONTEND_URL || 'http://localhost:3000',
-      'https://eventflex.vercel.app',
-      /\.vercel\.app$/
+      'https://eventflex.vercel.app'
     ],
     credentials: true
   }
 });
 
 // Connect to Database
-connectDB();
+connectDB().then(async () => {
+  // Create database indexes for performance
+  try {
+    await createDatabaseIndexes();
+    console.log('Database indexes initialized');
+  } catch (error) {
+    console.error('Failed to create database indexes:', error);
+  }
+  
+  // Log server startup
+  try {
+    await AuditLogger.log({
+      userId: new mongoose.Types.ObjectId(), // System user
+      action: 'SERVER_START',
+      resourceType: 'System',
+      details: {
+        environment: process.env.NODE_ENV || 'development',
+        port: process.env.PORT || 4000,
+        timestamp: new Date().toISOString()
+      },
+      ipAddress: 'localhost'
+    });
+  } catch (error) {
+    console.error('Failed to log server startup:', error);
+  }
+});
 
 // Start scheduled jobs
 startScheduledJobs();
@@ -79,8 +113,7 @@ app.use(cors({
   origin: [
     process.env.FRONTEND_URL || 'http://localhost:3000',
     'http://localhost:3000',
-    'https://eventflex.vercel.app',
-    /\.vercel\.app$/
+    'https://eventflex.vercel.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -199,6 +232,8 @@ app.use('/api/sponsors', sponsorRoutes);
 app.use('/api/work-schedule', workScheduleRoutes);
 app.use('/api/badges', badgeRoutes);
 app.use('/api/documents', documentRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/co-organizers', coOrganizerRoutes);
 
 // 404 handler
 app.use((req, res) => {

@@ -4,6 +4,7 @@ import { JobProvider } from './context/JobContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Toast from './components/common/Toast';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Pages
 import Home from './pages/Home';
@@ -43,12 +44,14 @@ import WorkQR from './pages/WorkQR';
 
 function App() {
   return (
-    <ThemeProvider>
-      <BrowserRouter>
-        <AuthProvider>
-          <JobProvider>
-            <Toast />
-            <Routes>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <BrowserRouter>
+          <ErrorBoundary>
+            <AuthProvider>
+              <JobProvider>
+                <Toast />
+                <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
@@ -97,11 +100,7 @@ function App() {
               </ProtectedRoute>
             } />
             
-            <Route path="/jobs/discover" element={
-              <ProtectedRoute allowedRoles={['worker']}>
-                <JobDiscover />
-              </ProtectedRoute>
-            } />
+            <Route path="/jobs/discover" element={<Navigate to="/jobs" replace />} />
 
             <Route path="/jobs" element={
               <ProtectedRoute allowedRoles={['worker']}>
@@ -236,11 +235,13 @@ function App() {
             } />
             
             <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-          </JobProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </ThemeProvider>
+                </Routes>
+              </JobProvider>
+            </AuthProvider>
+          </ErrorBoundary>
+        </BrowserRouter>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -35,6 +35,15 @@ const groupChatSchema = new mongoose.Schema({
     ref: 'Event',
     required: true
   },
+  groupType: {
+    type: String,
+    enum: ['main', 'coorganizer', 'worker'],
+    default: 'worker'
+  },
+  parentGroupId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'GroupChat'
+  },
   participants: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

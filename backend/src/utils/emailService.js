@@ -10,34 +10,67 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-export const sendEmail = async ({ to, subject, html }) => {
+const sendEmail = async (to, subject, html) => {
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    console.warn('Email service not configured');
+    return;
+  }
+  
+  if (!to || !subject || !html) {
+    console.warn('Email skipped: missing required parameters');
+    return;
+  }
+  
+  // Basic email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(to)) {
+    console.warn('Email skipped: invalid email address');
+    return;
+  }
+
   try {
-    const info = await transporter.sendMail({
-      from: process.env.SMTP_FROM || 'EventPro <noreply@eventpro.com>',
+    await transporter.sendMail({
+      from: `"EventFlex" <${process.env.SMTP_USER}>`,
       to,
       subject,
       html
     });
-    console.log('Email sent:', info.messageId);
-    return info;
   } catch (error) {
-    console.error('Error sending email:', error);
-    throw error;
+    console.error('Email send error:', error);
   }
 };
 
-export const sendWelcomeEmail = async (user) => {
-  return sendEmail({
-    to: user.email,
-    subject: 'Welcome to EventPro!',
-    html: `<h1>Welcome ${user.name}!</h1><p>Thank you for joining EventPro.</p>`
-  });
+export const sendApplicationAcceptedEmail = async (workerEmail, workerName, jobTitle) => {
+  const html = `
+    <h2>Application Accepted!</h2>
+    <p>Hi ${workerName},</p>
+    <p>Great news! Your application for <strong>${jobTitle}</strong> has been accepted.</p>
+    <p>Login to your dashboard to view details and connect with the organizer.</p>
+    <p>Best regards,<br>EventFlex Team</p>
+  `;
+  await sendEmail(workerEmail, 'Application Accepted - EventFlex', html);
 };
 
-export const sendJobNotification = async (user, job) => {
-  return sendEmail({
-    to: user.email,
-    subject: `New Job Match: ${job.title}`,
-    html: `<h1>New Job Opportunity</h1><p>A job matching your skills is available: ${job.title}</p>`
-  });
+export const sendJobApplicationEmail = async (organizerEmail, organizerName, jobTitle, workerName) => {
+  const html = `
+    <h2>New Job Application</h2>
+    <p>Hi ${organizerName},</p>
+    <p><strong>${workerName}</strong> has applied for your job: <strong>${jobTitle}</strong></p>
+    <p>Login to review the application and worker profile.</p>
+    <p>Best regards,<br>EventFlex Team</p>
+  `;
+  await sendEmail(organizerEmail, 'New Job Application - EventFlex', html);
 };
+
+export const sendWorkStartReminderEmail = async (workerEmail, workerName, jobTitle, startTime) => {
+  const html = `
+    <h2>Work Reminder</h2>
+    <p>Hi ${workerName},</p>
+    <p>This is a reminder that your work for <strong>${jobTitle}</strong> starts at ${startTime}.</p>
+    <p>Don't forget to check in using the QR code!</p>
+    <p>Best regards,<br>EventFlex Team</p>
+  `;
+  await sendEmail(workerEmail, 'Work Reminder - EventFlex', html);
+};
+
+export default { sendApplicationAcceptedEmail, sendJobApplicationEmail, sendWorkStartReminderEmail };

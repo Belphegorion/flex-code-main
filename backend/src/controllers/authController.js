@@ -9,8 +9,12 @@ import { calculateBadge } from '../utils/badgeSystem.js';
 export const register = async (req, res) => {
   // Basic input validation to return clearer 4xx errors instead of a generic 500
   const { name, email, phone, password, role } = req.body || {};
-  if (!name || !email || !password) {
-    return res.status(400).json({ message: 'name, email and password are required' });
+  if (!name || !email || !password || !role) {
+    return res.status(400).json({ message: 'name, email, password and role are required' });
+  }
+
+  if (!['worker', 'organizer', 'sponsor', 'admin'].includes(role)) {
+    return res.status(400).json({ message: 'Invalid role. Must be worker, organizer, sponsor, or admin' });
   }
 
   try {
@@ -20,8 +24,17 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
+    // Validate password strength
+    if (password.length < 8) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+    }
+    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+      return res.status(400).json({ message: 'Password must contain at least one uppercase letter, one lowercase letter, and one number' });
+    }
+
+    // Hash password with proper salt rounds
+    const saltRounds = process.env.NODE_ENV === 'production' ? 14 : 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // Create user
     const user = await User.create({

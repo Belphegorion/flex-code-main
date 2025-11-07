@@ -3,21 +3,19 @@ import Job from '../models/Job.js';
 import Event from '../models/Event.js';
 import User from '../models/User.js';
 import WorkSchedule from '../models/WorkSchedule.js';
+import WorkSession from '../models/WorkSession.js';
 import QRCode from 'qrcode';
 import crypto from 'crypto';
 
 export const createGroup = async (req, res) => {
   try {
-    const { name, eventId, participants } = req.body;
-
-    console.log('Create group request:', { name, eventId, participants, userId: req.userId });
+    const { name, eventId, participants, groupType, parentGroupId } = req.body;
 
     if (!name || !name.trim()) {
       return res.status(400).json({ message: 'Group name is required' });
     }
 
     if (!eventId) {
-      console.error('Event ID missing in request body');
       return res.status(400).json({ message: 'Event ID is required' });
     }
 
@@ -30,13 +28,19 @@ export const createGroup = async (req, res) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    if (event.organizerId.toString() !== req.userId.toString()) {
-      return res.status(403).json({ message: 'Only organizer can create group' });
+    const CoOrganizer = (await import('../models/CoOrganizer.js')).default;
+    const isMainOrganizer = event.organizerId.toString() === req.userId.toString();
+    const coOrganizer = await CoOrganizer.findOne({ eventId, userId: req.userId, status: 'active' });
+    
+    if (!isMainOrganizer && !coOrganizer?.permissions.canManageGroups) {
+      return res.status(403).json({ message: 'Insufficient permissions' });
     }
 
     const group = await GroupChat.create({
       name: name.trim(),
       eventId,
+      groupType: groupType || 'worker',
+      parentGroupId: parentGroupId || null,
       participants: [req.userId, ...participants],
       createdBy: req.userId,
       messages: [{
@@ -64,9 +68,24 @@ export const getGroups = async (req, res) => {
       .populate('participants', 'name email profilePhoto')
       .populate('eventId', 'title status')
       .populate('createdBy', 'name')
+      .populate('parentGroupId', 'name')
       .sort({ lastMessageAt: -1 });
 
-    res.json({ groups });
+    const Event = (await import('../models/Event.js')).default;
+    const eventIds = [...new Set(groups.map(g => g.eventId._id.toString()))];
+    const events = await Event.find({ _id: { $in: eventIds } });
+    
+    const isMainOrganizerMap = {};
+    events.forEach(e => {
+      isMainOrganizerMap[e._id.toString()] = e.organizerId.toString() === req.userId.toString();
+    });
+
+    const groupsWithAccess = groups.map(g => ({
+      ...g.toObject(),
+      canAccessAll: isMainOrganizerMap[g.eventId._id.toString()]
+    }));
+
+    res.json({ groups: groupsWithAccess });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching groups', error: error.message });
   }
@@ -128,6 +147,10 @@ export const sendGroupMessage = async (req, res) => {
 
     // Get sender info
     const sender = await User.findById(req.userId).select('name');
+    
+    if (!sender) {
+      return res.status(404).json({ message: 'Sender not found' });
+    }
 
     // Emit socket event to group
     const io = req.app.get('io');
@@ -195,7 +218,7 @@ export const addMembers = async (req, res) => {
     group.participants.push(...newMembers);
     
     // Add system message
-    const addedUsers = await User.find({ _id: { $in: newMembers } }).select('name');
+    const addedUsers = await User.find({ _id: { $in: newMembers } }).select('name role');
     const addedNames = addedUsers.map(u => u.name).join(', ');
     
     group.messages.push({
@@ -206,24 +229,79 @@ export const addMembers = async (req, res) => {
     
     await group.save();
 
+    // Auto-share work QR if workers are added and work schedule exists
+    const workerMembers = addedUsers.filter(u => u.role === 'worker');
+    if (workerMembers.length > 0) {
+      try {
+        const workSchedule = await WorkSchedule.findOne({ eventId: group.eventId });
+        if (workSchedule?.qrCode) {
+          // Add work QR message to group
+          group.messages.push({
+            senderId: req.userId,
+            text: `📱 Work Hours QR Code\n\nNew team members can scan this QR code to track work hours for ${group.eventId.title}\n\n⏰ Use this for check-in and check-out`,
+            type: 'system'
+          });
+          group.lastMessage = group.messages[group.messages.length - 1].text;
+          group.lastMessageAt = new Date();
+          await group.save();
+
+          // Emit QR message to group
+          const messageWithQR = {
+            ...group.messages[group.messages.length - 1].toObject(),
+            qrCode: workSchedule.qrCode
+          };
+          
+          const io = req.app.get('io');
+          io.to(`group_${group._id}`).emit('group-message', {
+            groupId: group._id,
+            message: messageWithQR,
+            qrCode: workSchedule.qrCode
+          });
+        }
+      } catch (qrError) {
+        console.error('Error auto-sharing work QR:', qrError);
+      }
+    }
+
     // Send notifications to new members
     const { createNotification } = await import('./notificationController.js');
     const io = req.app.get('io');
 
     for (const userId of newMembers) {
-      await createNotification(userId, {
-        type: 'group',
-        title: 'Added to Group',
-        message: `You were added to ${group.name}`,
-        relatedId: group._id,
-        relatedModel: 'GroupChat',
-        actionUrl: `/groups/${group._id}`
-      });
+      const addedUser = addedUsers.find(u => u._id.toString() === userId);
+      
+      if (addedUser?.role === 'worker') {
+        // Special notification for workers with work QR access
+        await createNotification(userId, {
+          type: 'work_access',
+          title: 'Work Access Granted',
+          message: `You can now track work hours for ${group.eventId.title}. Check the group chat for QR code.`,
+          relatedId: group.eventId,
+          relatedModel: 'Event',
+          actionUrl: `/work-qr/${group.eventId}`,
+          metadata: { groupId: group._id }
+        });
 
-      io.to(`user_${userId}`).emit('notification', {
-        type: 'group',
-        message: `Added to ${group.name}`
-      });
+        io.to(`user_${userId}`).emit('notification', {
+          type: 'work_access',
+          message: `Work tracking enabled for ${group.eventId.title}`,
+          actionUrl: `/work-qr/${group.eventId}`
+        });
+      } else {
+        await createNotification(userId, {
+          type: 'group',
+          title: 'Added to Group',
+          message: `You were added to ${group.name}`,
+          relatedId: group._id,
+          relatedModel: 'GroupChat',
+          actionUrl: `/groups/${group._id}`
+        });
+
+        io.to(`user_${userId}`).emit('notification', {
+          type: 'group',
+          message: `Added to ${group.name}`
+        });
+      }
     }
 
     // Emit to group
@@ -314,6 +392,10 @@ export const leaveGroup = async (req, res) => {
     }
 
     const leavingUser = await User.findById(req.userId).select('name');
+    
+    if (!leavingUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
     group.participants = group.participants.filter(p => p._id.toString() !== req.userId.toString());
     
@@ -367,6 +449,10 @@ export const transferOwnership = async (req, res) => {
       User.findById(req.userId).select('name'),
       User.findById(newOwnerId).select('name')
     ]);
+    
+    if (!oldOwner || !newOwner) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
     group.createdBy = newOwnerId;
     
@@ -600,6 +686,164 @@ export const shareWorkQRInGroup = async (req, res) => {
   }
 };
 
+export const getAvailableJobsForWorker = async (req, res) => {
+  try {
+    const { groupId } = req.params;
+
+    // Verify user is in the group
+    const group = await GroupChat.findById(groupId)
+      .populate('eventId', 'title');
+
+    if (!group) {
+      return res.status(404).json({ message: 'Group not found' });
+    }
+
+    if (!group.participants.some(p => p._id.toString() === req.userId.toString())) {
+      return res.status(403).json({ message: 'You are not a member of this group' });
+    }
+
+    // Check if user is a worker
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    if (user.role !== 'worker') {
+      return res.status(403).json({ message: 'Only workers can view available jobs' });
+    }
+
+    // Get jobs for this event where worker is hired
+    const jobs = await Job.find({ 
+      eventId: group.eventId,
+      hiredPros: req.userId 
+    }).select('title description payPerPerson');
+
+    // Check for active work sessions
+    const today = new Date().toISOString().split('T')[0];
+    const activeSessions = await WorkSession.find({
+      eventId: group.eventId,
+      workerId: req.userId,
+      date: today,
+      status: 'checked-in'
+    });
+
+    const jobsWithStatus = jobs.map(job => ({
+      ...job.toObject(),
+      isActive: activeSessions.some(s => s.jobId.toString() === job._id.toString())
+    }));
+
+    res.json({ 
+      jobs: jobsWithStatus,
+      eventTitle: group.eventId.title,
+      hasActiveSession: activeSessions.length > 0
+    });
+  } catch (error) {
+    console.error('Error getting available jobs:', error);
+    res.status(500).json({ message: 'Error getting available jobs', error: error.message });
+  }
+};
+
+export const startWorkFromGroup = async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    const { jobId } = req.body;
+
+    // Verify user is in the group
+    const group = await GroupChat.findById(groupId)
+      .populate('eventId', 'title');
+
+    if (!group) {
+      return res.status(404).json({ message: 'Group not found' });
+    }
+
+    if (!group.participants.some(p => p._id.toString() === req.userId.toString())) {
+      return res.status(403).json({ message: 'You are not a member of this group' });
+    }
+
+    // Check if user is a worker
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    if (user.role !== 'worker') {
+      return res.status(403).json({ message: 'Only workers can start work hours' });
+    }
+
+    // Get work schedule for the event
+    const workSchedule = await WorkSchedule.findOne({ 
+      eventId: group.eventId,
+      qrExpiry: { $gt: new Date() },
+      isActive: true 
+    });
+
+    if (!workSchedule) {
+      return res.status(404).json({ message: 'No active work schedule found for this event' });
+    }
+
+    // Verify worker is assigned to the job
+    const job = await Job.findOne({ 
+      _id: jobId, 
+      eventId: group.eventId,
+      hiredPros: req.userId 
+    });
+
+    if (!job) {
+      return res.status(403).json({ message: 'You are not assigned to this job' });
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+
+    // Check if already checked in today
+    const existingSession = await WorkSession.findOne({
+      eventId: group.eventId,
+      workerId: req.userId,
+      jobId,
+      date: today,
+      status: 'checked-in'
+    });
+
+    if (existingSession) {
+      return res.status(400).json({ message: 'Already checked in for today' });
+    }
+
+    // Create new work session
+    const session = await WorkSession.create({
+      eventId: group.eventId,
+      workerId: req.userId,
+      jobId,
+      checkInTime: new Date(),
+      hourlyRate: job.payPerPerson,
+      date: today
+    });
+
+    // Add system message to group
+    group.messages.push({
+      senderId: req.userId,
+      text: `${user.name} started working on ${job.title}`,
+      type: 'system'
+    });
+    group.lastMessage = group.messages[group.messages.length - 1].text;
+    group.lastMessageAt = new Date();
+    await group.save();
+
+    // Emit to group
+    const io = req.app.get('io');
+    io.to(`group_${group._id}`).emit('group-message', {
+      groupId: group._id,
+      message: group.messages[group.messages.length - 1]
+    });
+
+    res.json({ 
+      message: 'Work session started successfully',
+      session,
+      qrToken: workSchedule.qrToken,
+      checkInTime: session.checkInTime
+    });
+  } catch (error) {
+    console.error('Error starting work from group:', error);
+    res.status(500).json({ message: 'Error starting work session', error: error.message });
+  }
+};
+
 export const getMeetingInfo = async (req, res) => {
   try {
     const group = await GroupChat.findById(req.params.id)
@@ -625,5 +869,43 @@ export const getMeetingInfo = async (req, res) => {
   } catch (error) {
     console.error('Error getting meeting info:', error);
     res.status(500).json({ message: 'Error getting meeting info', error: error.message });
+  }
+};
+export const getEventGroupHierarchy = async (req, res) => {
+  try {
+    const { eventId } = req.params;
+
+    const event = await Event.findById(eventId);
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    const isMainOrganizer = event.organizerId.toString() === req.userId.toString();
+    
+    if (!isMainOrganizer) {
+      const CoOrganizer = (await import('../models/CoOrganizer.js')).default;
+      const coOrganizer = await CoOrganizer.findOne({ eventId, userId: req.userId, status: 'active' });
+      if (!coOrganizer) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+    }
+
+    const allGroups = await GroupChat.find({ eventId, isActive: true })
+      .populate('participants', 'name email profilePhoto')
+      .populate('createdBy', 'name')
+      .sort({ createdAt: 1 });
+
+    const mainGroup = allGroups.find(g => g.groupType === 'main');
+    const coOrganizerGroups = allGroups.filter(g => g.groupType === 'coorganizer');
+    const workerGroups = allGroups.filter(g => g.groupType === 'worker');
+
+    res.json({
+      mainGroup,
+      coOrganizerGroups,
+      workerGroups,
+      canAccessAll: isMainOrganizer
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching group hierarchy', error: error.message });
   }
 };

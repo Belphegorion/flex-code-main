@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { FiSend, FiUsers, FiArrowLeft, FiUserPlus, FiX, FiSettings, FiUserMinus, FiUserCheck, FiHash, FiClock } from 'react-icons/fi';
 import Layout from '../components/common/Layout';
 import GroupScheduler from '../components/groups/GroupScheduler';
+import WorkStartButton from '../components/work/WorkStartButton';
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import socketService from '../services/socket';
@@ -239,6 +240,12 @@ export default function GroupChat() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {user?.role === 'worker' && (
+              <WorkStartButton 
+                groupId={groupId} 
+                onWorkStarted={() => fetchGroup()}
+              />
+            )}
             {isOrganizer && (
               <>
                 <button

@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Application from '../models/Application.js';
 import Job from '../models/Job.js';
 import User from '../models/User.js';
@@ -91,70 +92,106 @@ export const getMyApplications = async (req, res) => {
 };
 
 export const acceptApplication = async (req, res) => {
+  const session = await mongoose.startSession();
+  
   try {
-    const application = await Application.findById(req.params.id)
-      .populate('jobId');
+    await session.withTransaction(async () => {
+      const application = await Application.findById(req.params.id)
+        .populate('jobId')
+        .session(session);
 
-    if (!application) {
-      return res.status(404).json({ message: 'Application not found' });
-    }
+      if (!application) {
+        throw new Error('Application not found');
+      }
 
-    // Verify organizer owns the job
-    if (application.jobId.organizerId.toString() !== req.userId.toString()) {
-      return res.status(403).json({ message: 'Unauthorized' });
-    }
+      // Verify organizer owns the job
+      if (application.jobId.organizerId.toString() !== req.userId.toString()) {
+        throw new Error('Unauthorized');
+      }
 
-    application.status = 'accepted';
-    await application.save();
+      if (application.status === 'accepted') {
+        throw new Error('Application already accepted');
+      }
 
-    // Update job applicant status
-    const job = application.jobId;
-    const applicant = job.applicants.find(a => a.proId.toString() === application.proId.toString());
-    if (applicant) {
-      applicant.status = 'accepted';
-    }
-    job.positionsFilled = (job.positionsFilled || 0) + 1;
-    await job.save();
-
-    // Auto-create or add to event group chat
-    if (job.eventId) {
-      const event = await Event.findById(job.eventId);
+      const job = application.jobId;
       
-      // Check if event group already exists
-      let group = await GroupChat.findOne({ eventId: job.eventId });
+      // Check if job still has available positions
+      const currentFilled = job.positionsFilled || 0;
+      if (currentFilled >= job.workersNeeded) {
+        throw new Error('Job is already fully staffed');
+      }
+
+      // Update application status
+      application.status = 'accepted';
+      await application.save({ session });
+
+      // Update job applicant status and increment positions filled
+      const applicant = job.applicants.find(a => a.proId.toString() === application.proId.toString());
+      if (applicant) {
+        applicant.status = 'accepted';
+      }
+      job.positionsFilled = currentFilled + 1;
       
-      if (!group) {
-        // Create new event group
-        group = await GroupChat.create({
-          name: event.title,
-          eventId: job.eventId,
-          participants: [req.userId, application.proId],
-          createdBy: req.userId,
-          messages: [{
-            senderId: req.userId,
-            text: `Welcome to ${event.title}!`,
-            type: 'system'
-          }]
-        });
-      } else {
-        // Add worker to existing group if not already in it
-        if (!group.participants.includes(application.proId)) {
-          group.participants.push(application.proId);
-          
-          const worker = await User.findById(application.proId).select('name');
-          group.messages.push({
-            senderId: req.userId,
-            text: `${worker.name} joined ${event.title}`,
-            type: 'system'
-          });
-          
-          await group.save();
+      // Update job status if fully staffed
+      if (job.positionsFilled >= job.workersNeeded) {
+        job.status = 'filled';
+      }
+      
+      await job.save({ session });
+
+      // Auto-create or add to event group chat
+      if (job.eventId) {
+        const event = await Event.findById(job.eventId).session(session);
+        
+        // Check if event group already exists
+        let group = await GroupChat.findOne({ eventId: job.eventId }).session(session);
+        
+        if (!group) {
+          // Create new event group
+          group = await GroupChat.create([{
+            name: event.title,
+            eventId: job.eventId,
+            participants: [req.userId, application.proId],
+            createdBy: req.userId,
+            messages: [{
+              senderId: req.userId,
+              text: `Welcome to ${event.title}!`,
+              type: 'system'
+            }]
+          }], { session });
+          group = group[0];
+        } else {
+          // Add worker to existing group if not already in it
+          if (!group.participants.includes(application.proId)) {
+            group.participants.push(application.proId);
+            
+            const worker = await User.findById(application.proId).select('name').session(session);
+            if (worker) {
+              group.messages.push({
+                senderId: req.userId,
+                text: `${worker.name} joined ${event.title}`,
+                type: 'system'
+              });
+            }
+            
+            await group.save({ session });
+          }
         }
       }
-    }
+
+      // Store data for post-transaction operations
+      req.transactionData = {
+        application,
+        job,
+        workerId: application.proId
+      };
+    });
+
+    // Post-transaction operations (notifications, socket events, scheduling)
+    const { application, job, workerId } = req.transactionData;
 
     // Create notification for worker
-    await createNotification(application.proId, {
+    await createNotification(workerId, {
       type: 'acceptance',
       title: 'Application Accepted!',
       message: `Your application for ${job.title} has been accepted`,
@@ -165,7 +202,7 @@ export const acceptApplication = async (req, res) => {
 
     // Emit socket event
     const io = req.app.get('io');
-    io.to(`user_${application.proId}`).emit('notification', {
+    io.to(`user_${workerId}`).emit('notification', {
       type: 'acceptance',
       message: `Application accepted for ${job.title}`
     });
@@ -178,7 +215,13 @@ export const acceptApplication = async (req, res) => {
 
     res.json({ message: 'Application accepted', application });
   } catch (error) {
-    res.status(500).json({ message: 'Error accepting application', error: error.message });
+    const statusCode = error.message === 'Application not found' ? 404 :
+                      error.message === 'Unauthorized' ? 403 :
+                      error.message.includes('already') || error.message.includes('fully staffed') ? 400 : 500;
+    
+    res.status(statusCode).json({ message: error.message || 'Error accepting application' });
+  } finally {
+    await session.endSession();
   }
 };
 

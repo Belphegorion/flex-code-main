@@ -10,6 +10,7 @@ import {
 } from '../controllers/applicationController.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 import { validate } from '../middleware/validation.js';
+import { jobApplicationLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
@@ -26,7 +27,7 @@ router.post('/check-in', authenticate, authorize('worker'), [
 ], checkIn);
 
 // Parameterized routes
-router.post('/', authenticate, authorize('worker'), [
+router.post('/', jobApplicationLimiter, authenticate, authorize('worker'), [
   body('jobId').notEmpty().withMessage('Job ID is required'),
   body('coverLetter').optional().isLength({ max: 1000 }),
   validate

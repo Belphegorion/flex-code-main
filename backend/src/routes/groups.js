@@ -12,7 +12,10 @@ import {
   scheduleVideoMeeting,
   joinMeeting,
   shareWorkQRInGroup,
-  getMeetingInfo
+  startWorkFromGroup,
+  getAvailableJobsForWorker,
+  getMeetingInfo,
+  getEventGroupHierarchy
 } from '../controllers/groupChatController.js';
 import { authenticate } from '../middleware/auth.js';
 import { validate } from '../middleware/validation.js';
@@ -55,6 +58,9 @@ router.post('/:id/schedule-meeting', authenticate, [
 
 router.get('/:id/meeting', authenticate, joinMeeting);
 router.post('/:groupId/share-work-qr', authenticate, shareWorkQRInGroup);
+router.post('/:groupId/start-work', authenticate, startWorkFromGroup);
+router.get('/:groupId/available-jobs', authenticate, getAvailableJobsForWorker);
 router.get('/:id/meeting-info', authenticate, getMeetingInfo);
+router.get('/event/:eventId/hierarchy', authenticate, getEventGroupHierarchy);
 
 export default router;

@@ -80,6 +80,20 @@ const userSchema = new mongoose.Schema({
   profilePhoto: {
     type: String
   },
+  bio: {
+    type: String,
+    maxlength: 500
+  },
+  location: {
+    city: String,
+    state: String,
+    country: String
+  },
+  socialLinks: {
+    linkedin: String,
+    twitter: String,
+    portfolio: String
+  },
   aadhaarDocument: {
     url: String,
     uploadedAt: Date,

@@ -50,14 +50,29 @@ export const getEventDetails = async (req, res) => {
 
 export const updateEvent = async (req, res) => {
   try {
-    const event = await Event.findOneAndUpdate(
-      { _id: req.params.eventId, organizerId: req.userId },
-      req.body,
-      { new: true }
-    );
+    const event = await Event.findById(req.params.eventId);
     if (!event) {
-      return res.status(404).json({ message: 'Event not found or unauthorized' });
+      return res.status(404).json({ message: 'Event not found' });
     }
+
+    const isMainOrganizer = event.organizerId.toString() === req.userId.toString();
+    
+    if (!isMainOrganizer) {
+      const CoOrganizer = (await import('../models/CoOrganizer.js')).default;
+      const coOrganizer = await CoOrganizer.findOne({ 
+        eventId: req.params.eventId, 
+        userId: req.userId, 
+        status: 'active' 
+      });
+      
+      if (!coOrganizer?.permissions.canEditEvent) {
+        return res.status(403).json({ message: 'Insufficient permissions' });
+      }
+    }
+
+    Object.assign(event, req.body);
+    await event.save();
+    
     res.json({ event });
   } catch (error) {
     res.status(500).json({ message: 'Error updating event', error: error.message });

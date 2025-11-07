@@ -1,6 +1,7 @@
-import React from 'react';
+import { Component } from 'react';
+import { toast } from 'react-toastify';
 
-class ErrorBoundary extends React.Component {
+class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -10,19 +11,24 @@ class ErrorBoundary extends React.Component {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error, info) {
-    // Log to console — could be extended to a logging service
-    console.error('ErrorBoundary caught an error', error, info);
+  componentDidCatch(error, errorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo);
+    toast.error('Something went wrong. Please refresh the page.');
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div className="max-w-4xl mx-auto px-4 py-12">
-          <div className="card p-6 text-center">
-            <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
-            <p className="text-gray-600 mb-4">We encountered an unexpected error while rendering this page.</p>
-            <pre className="text-xs text-left overflow-auto max-h-40 bg-gray-50 dark:bg-gray-800 p-2 rounded">{String(this.state.error)}</pre>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Oops! Something went wrong</h2>
+            <p className="text-gray-600 mb-6">We're sorry for the inconvenience. Please try refreshing the page.</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+            >
+              Refresh Page
+            </button>
           </div>
         </div>
       );

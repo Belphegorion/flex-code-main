@@ -108,5 +108,11 @@ jobSchema.index({ requiredSkills: 1 });
 jobSchema.index({ status: 1 });
 jobSchema.index({ dateStart: 1 });
 jobSchema.index({ 'location.lat': 1, 'location.lng': 1 });
+jobSchema.index({ 'location.city': 1 });
+jobSchema.index({ payPerPerson: 1 });
+jobSchema.index({ organizerId: 1, status: 1 });
+
+// Text index for full-text search
+jobSchema.index({ title: 'text', description: 'text', roles: 'text' });
 
 export default mongoose.model('Job', jobSchema);

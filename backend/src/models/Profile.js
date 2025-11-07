@@ -55,8 +55,28 @@ const profileSchema = new mongoose.Schema({
     city: String,
     state: String,
     country: String,
-    lat: Number,
-    lng: Number
+    lat: {
+      type: Number,
+      min: -90,
+      max: 90,
+      validate: {
+        validator: function(v) {
+          return v === null || v === undefined || (v >= -90 && v <= 90);
+        },
+        message: 'Latitude must be between -90 and 90 degrees'
+      }
+    },
+    lng: {
+      type: Number,
+      min: -180,
+      max: 180,
+      validate: {
+        validator: function(v) {
+          return v === null || v === undefined || (v >= -180 && v <= 180);
+        },
+        message: 'Longitude must be between -180 and 180 degrees'
+      }
+    }
   },
   availability: {
     type: String,

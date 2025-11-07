@@ -20,11 +20,14 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (user?.id) {
       socketService.connect(user.id);
+    } else {
+      socketService.disconnect();
     }
+    
     return () => {
-      if (!user) socketService.disconnect();
+      socketService.disconnect();
     };
-  }, [user]);
+  }, [user?.id]);
 
   const loadUser = async () => {
     try {

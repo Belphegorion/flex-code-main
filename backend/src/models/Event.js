@@ -15,10 +15,34 @@ const eventSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  coOrganizers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'CoOrganizer'
+  }],
   location: {
     address: String,
-    lat: Number,
-    lng: Number
+    lat: { 
+      type: Number,
+      min: -90,
+      max: 90,
+      validate: {
+        validator: function(v) {
+          return v === undefined || v === null || (v >= -90 && v <= 90);
+        },
+        message: 'Latitude must be between -90 and 90'
+      }
+    },
+    lng: { 
+      type: Number,
+      min: -180,
+      max: 180,
+      validate: {
+        validator: function(v) {
+          return v === undefined || v === null || (v >= -180 && v <= 180);
+        },
+        message: 'Longitude must be between -180 and 180'
+      }
+    }
   },
   venue: {
     name: String,
@@ -88,17 +112,7 @@ const eventSchema = new mongoose.Schema({
   },
   tickets: {
     totalDispersed: { type: Number, default: 0, min: 0 },
-    totalSold: { 
-      type: Number, 
-      default: 0, 
-      min: 0,
-      validate: {
-        validator: function(value) {
-          return value <= this.tickets.totalDispersed;
-        },
-        message: 'Tickets sold cannot exceed total dispersed'
-      }
-    },
+    totalSold: { type: Number, default: 0, min: 0 },
     pricePerTicket: { type: Number, default: 0, min: 0 }
   },
   expenses: [{
@@ -137,6 +151,53 @@ const eventSchema = new mongoose.Schema({
   }
 }, {
   timestamps: true
+});
+
+// Pre-save validation
+eventSchema.pre('save', function(next) {
+  // Validate tickets
+  if (this.tickets.totalSold > this.tickets.totalDispersed) {
+    return next(new Error('Tickets sold cannot exceed total dispersed'));
+  }
+  
+  // Validate dates
+  if (this.dateEnd <= this.dateStart) {
+    return next(new Error('End date must be after start date'));
+  }
+  
+  // Validate attendees
+  if (this.attendees.registeredCount > this.attendees.expectedCount) {
+    return next(new Error('Registered count cannot exceed expected count'));
+  }
+  
+  if (this.attendees.checkedInCount > this.attendees.registeredCount) {
+    return next(new Error('Checked-in count cannot exceed registered count'));
+  }
+  
+  // Calculate revenue
+  if (this.tickets.totalSold && this.tickets.pricePerTicket) {
+    this.revenue = this.tickets.totalSold * this.tickets.pricePerTicket;
+  }
+  
+  // Calculate estimated profit
+  const totalExpenses = this.expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
+  this.estimatedProfit = this.revenue - totalExpenses;
+  
+  next();
+});
+
+// Pre-update validation
+eventSchema.pre('findOneAndUpdate', function(next) {
+  const update = this.getUpdate();
+  
+  if (update.$set && update.$set.tickets) {
+    const { totalSold, totalDispersed } = update.$set.tickets;
+    if (totalSold > totalDispersed) {
+      return next(new Error('Tickets sold cannot exceed total dispersed'));
+    }
+  }
+  
+  next();
 });
 
 export default mongoose.model('Event', eventSchema);

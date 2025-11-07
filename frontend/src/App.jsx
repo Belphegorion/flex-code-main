@@ -4,6 +4,8 @@ import { JobProvider } from './context/JobContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Toast from './components/common/Toast';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import ErrorBoundary from './components/common/ErrorBoundary';
+import RouteErrorBoundary from './components/common/RouteErrorBoundary';
 
 // Pages
 import Home from './pages/Home';
@@ -48,7 +50,8 @@ function App() {
         <AuthProvider>
           <JobProvider>
             <Toast />
-            <Routes>
+            <ErrorBoundary>
+              <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
@@ -61,13 +64,17 @@ function App() {
             
             <Route path="/worker" element={
               <ProtectedRoute allowedRoles={['worker']}>
-                <WorkerDashboard />
+                <RouteErrorBoundary>
+                  <WorkerDashboard />
+                </RouteErrorBoundary>
               </ProtectedRoute>
             } />
             
             <Route path="/organizer" element={
               <ProtectedRoute allowedRoles={['organizer']}>
-                <OrganizerDashboard />
+                <RouteErrorBoundary>
+                  <OrganizerDashboard />
+                </RouteErrorBoundary>
               </ProtectedRoute>
             } />
             
@@ -97,15 +104,13 @@ function App() {
               </ProtectedRoute>
             } />
             
-            <Route path="/jobs/discover" element={
-              <ProtectedRoute allowedRoles={['worker']}>
-                <JobDiscover />
-              </ProtectedRoute>
-            } />
+            <Route path="/jobs/discover" element={<Navigate to="/jobs" replace />} />
 
             <Route path="/jobs" element={
               <ProtectedRoute allowedRoles={['worker']}>
-                <JobsLanding />
+                <RouteErrorBoundary>
+                  <JobsLanding />
+                </RouteErrorBoundary>
               </ProtectedRoute>
             } />
             
@@ -236,7 +241,8 @@ function App() {
             } />
             
             <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+              </Routes>
+            </ErrorBoundary>
           </JobProvider>
         </AuthProvider>
       </BrowserRouter>

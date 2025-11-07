@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiBell } from 'react-icons/fi';
+import { FiBell, FiClock, FiUsers, FiMessageSquare, FiCalendar, FiQrCode } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import socketService from '../../services/socket';
@@ -112,7 +112,16 @@ export default function NotificationBell() {
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${!notif.read ? 'bg-primary-500' : 'bg-transparent'}`} />
+                      <div className="flex-shrink-0 mt-1">
+                        {notif.type === 'work_access' && <FiClock className="text-green-500" size={18} />}
+                        {notif.type === 'qr_code' && <FiQrCode className="text-blue-500" size={18} />}
+                        {notif.type === 'group' && <FiUsers className="text-purple-500" size={18} />}
+                        {notif.type === 'message' && <FiMessageSquare className="text-blue-500" size={18} />}
+                        {notif.type === 'meeting' && <FiCalendar className="text-orange-500" size={18} />}
+                        {!['work_access', 'qr_code', 'group', 'message', 'meeting'].includes(notif.type) && (
+                          <div className={`w-2 h-2 rounded-full ${!notif.read ? 'bg-primary-500' : 'bg-gray-300'}`} />
+                        )}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm text-gray-900 dark:text-gray-100 mb-1">{notif.title}</p>
                         <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{notif.message}</p>
@@ -120,6 +129,9 @@ export default function NotificationBell() {
                           {new Date(notif.createdAt).toLocaleString()}
                         </p>
                       </div>
+                      {!notif.read && (
+                        <div className="w-2 h-2 rounded-full bg-primary-500 flex-shrink-0 mt-2" />
+                      )}
                     </div>
                   </div>
                 ))
