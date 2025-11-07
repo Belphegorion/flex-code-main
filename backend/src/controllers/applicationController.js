@@ -134,7 +134,7 @@ export const acceptApplication = async (req, res) => {
       
       // Update job status if fully staffed
       if (job.positionsFilled >= job.totalPositions) {
-        job.status = 'filled';
+        job.status = 'in-progress';
       }
       
       await job.save({ session });

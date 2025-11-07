@@ -326,7 +326,7 @@ export const hirePro = async (req, res) => {
       });
 
       if (job.positionsFilled >= job.totalPositions) {
-        job.status = 'filled';
+        job.status = 'in-progress';
       }
 
       await job.save({ session });
@@ -418,8 +418,8 @@ export const bulkAcceptApplications = async (req, res) => {
         
         // Update job
         job.positionsFilled = (job.positionsFilled || 0) + apps.length;
-        if (job.positionsFilled >= job.workersNeeded) {
-          job.status = 'filled';
+        if (job.positionsFilled >= job.totalPositions) {
+          job.status = 'in-progress';
         }
         await job.save({ session });
       }
