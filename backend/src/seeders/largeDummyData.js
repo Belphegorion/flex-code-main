@@ -72,7 +72,7 @@ const seedDatabase = async () => {
 
     // Create 5 Organizers
     const organizers = await User.insertMany([
-      { name: 'Sarah Johnson', email: 'organizer1@eventflex.com', phone: '+1-555-1001', password: hashedPassword, role: 'organizer', profileCompleted: true, ratingAvg: 4.8, totalRatings: 45 },
+      { name: 'Syed Adnan', email: 'syedadnanmohd@gmail.com', phone: '+1-555-1001', password: hashedPassword, role: 'organizer', profileCompleted: true, ratingAvg: 4.8, totalRatings: 45 },
       { name: 'David Miller', email: 'organizer2@eventflex.com', phone: '+1-555-1002', password: hashedPassword, role: 'organizer', profileCompleted: true, ratingAvg: 4.6, totalRatings: 32 },
       { name: 'Jennifer Lee', email: 'organizer3@eventflex.com', phone: '+1-555-1003', password: hashedPassword, role: 'organizer', profileCompleted: true, ratingAvg: 4.9, totalRatings: 58 },
       { name: 'Robert Brown', email: 'organizer4@eventflex.com', phone: '+1-555-1004', password: hashedPassword, role: 'organizer', profileCompleted: true, ratingAvg: 4.7, totalRatings: 41 },
@@ -96,14 +96,14 @@ const seedDatabase = async () => {
     const events = await Event.insertMany([
       { title: 'Tech Summit 2024', description: 'Annual technology conference', organizerId: organizers[0]._id, eventType: 'conference', location: { address: '123 Convention Center, NY', lat: 40.7128, lng: -74.0060 }, dateStart: new Date('2024-03-15'), dateEnd: new Date('2024-03-17'), status: 'upcoming', attendees: { expectedCount: 500, registeredCount: 350 }, tickets: { totalDispersed: 500, totalSold: 350, pricePerTicket: 299 } },
       { title: 'Summer Music Festival', description: 'Three-day outdoor music festival', organizerId: organizers[1]._id, eventType: 'festival', location: { address: '456 Park Ave, NY', lat: 40.7589, lng: -73.9851 }, dateStart: new Date('2024-06-20'), dateEnd: new Date('2024-06-22'), status: 'upcoming', attendees: { expectedCount: 2000, registeredCount: 1500 }, tickets: { totalDispersed: 2000, totalSold: 1500, pricePerTicket: 150 } },
-      { title: 'Corporate Gala Night', description: 'Elegant corporate networking event', organizerId: organizers[2]._id, eventType: 'corporate', location: { address: '789 Grand Hotel, Manhattan', lat: 40.7614, lng: -73.9776 }, dateStart: new Date('2024-04-10'), dateEnd: new Date('2024-04-10'), status: 'upcoming', attendees: { expectedCount: 200, registeredCount: 180 }, tickets: { totalDispersed: 200, totalSold: 180, pricePerTicket: 500 } },
+      { title: 'Corporate Gala Night', description: 'Elegant corporate networking event', organizerId: organizers[2]._id, eventType: 'corporate', location: { address: '789 Grand Hotel, Manhattan', lat: 40.7614, lng: -73.9776 }, dateStart: new Date('2024-04-10T18:00:00'), dateEnd: new Date('2024-04-10T23:00:00'), status: 'upcoming', attendees: { expectedCount: 200, registeredCount: 180 }, tickets: { totalDispersed: 200, totalSold: 180, pricePerTicket: 500 } },
       { title: 'Food & Wine Expo', description: 'Culinary showcase event', organizerId: organizers[3]._id, eventType: 'expo', location: { address: '321 Expo Center, Brooklyn', lat: 40.6782, lng: -73.9442 }, dateStart: new Date('2024-05-05'), dateEnd: new Date('2024-05-07'), status: 'upcoming', attendees: { expectedCount: 800, registeredCount: 600 }, tickets: { totalDispersed: 800, totalSold: 600, pricePerTicket: 75 } },
-      { title: 'Charity Marathon', description: 'Annual charity running event', organizerId: organizers[4]._id, eventType: 'sports', location: { address: '555 Central Park, NY', lat: 40.7829, lng: -73.9654 }, dateStart: new Date('2024-09-15'), dateEnd: new Date('2024-09-15'), status: 'upcoming', attendees: { expectedCount: 1000, registeredCount: 850 }, tickets: { totalDispersed: 1000, totalSold: 850, pricePerTicket: 50 } },
-      { title: 'Art Gallery Opening', description: 'Contemporary art exhibition', organizerId: organizers[0]._id, eventType: 'exhibition', location: { address: '888 Gallery St, Manhattan', lat: 40.7580, lng: -73.9855 }, dateStart: new Date('2024-07-12'), dateEnd: new Date('2024-07-12'), status: 'upcoming', attendees: { expectedCount: 150, registeredCount: 120 }, tickets: { totalDispersed: 150, totalSold: 120, pricePerTicket: 100 } },
+      { title: 'Charity Marathon', description: 'Annual charity running event', organizerId: organizers[4]._id, eventType: 'sports', location: { address: '555 Central Park, NY', lat: 40.7829, lng: -73.9654 }, dateStart: new Date('2024-09-15T07:00:00'), dateEnd: new Date('2024-09-15T14:00:00'), status: 'upcoming', attendees: { expectedCount: 1000, registeredCount: 850 }, tickets: { totalDispersed: 1000, totalSold: 850, pricePerTicket: 50 } },
+      { title: 'Art Gallery Opening', description: 'Contemporary art exhibition', organizerId: organizers[0]._id, eventType: 'exhibition', location: { address: '888 Gallery St, Manhattan', lat: 40.7580, lng: -73.9855 }, dateStart: new Date('2024-07-12T18:00:00'), dateEnd: new Date('2024-07-12T22:00:00'), status: 'upcoming', attendees: { expectedCount: 150, registeredCount: 120 }, tickets: { totalDispersed: 150, totalSold: 120, pricePerTicket: 100 } },
       { title: 'Business Conference', description: 'Leadership and innovation summit', organizerId: organizers[1]._id, eventType: 'conference', location: { address: '999 Business Center, NY', lat: 40.7489, lng: -73.9680 }, dateStart: new Date('2024-08-20'), dateEnd: new Date('2024-08-22'), status: 'upcoming', attendees: { expectedCount: 400, registeredCount: 320 }, tickets: { totalDispersed: 400, totalSold: 320, pricePerTicket: 399 } },
       { title: 'Holiday Market', description: 'Seasonal shopping and entertainment', organizerId: organizers[2]._id, eventType: 'market', location: { address: '111 Market Square, Queens', lat: 40.7282, lng: -73.7949 }, dateStart: new Date('2024-12-10'), dateEnd: new Date('2024-12-24'), status: 'upcoming', attendees: { expectedCount: 3000, registeredCount: 2500 }, tickets: { totalDispersed: 3000, totalSold: 2500, pricePerTicket: 0 } },
       { title: 'Fashion Week Show', description: 'Designer runway presentations', organizerId: organizers[3]._id, eventType: 'fashion', location: { address: '222 Fashion Ave, Manhattan', lat: 40.7549, lng: -73.9840 }, dateStart: new Date('2024-10-05'), dateEnd: new Date('2024-10-08'), status: 'upcoming', attendees: { expectedCount: 600, registeredCount: 550 }, tickets: { totalDispersed: 600, totalSold: 550, pricePerTicket: 250 } },
-      { title: 'Comedy Night Live', description: 'Stand-up comedy showcase', organizerId: organizers[4]._id, eventType: 'entertainment', location: { address: '333 Comedy Club, Brooklyn', lat: 40.6501, lng: -73.9496 }, dateStart: new Date('2024-11-18'), dateEnd: new Date('2024-11-18'), status: 'upcoming', attendees: { expectedCount: 250, registeredCount: 200 }, tickets: { totalDispersed: 250, totalSold: 200, pricePerTicket: 45 } }
+      { title: 'Comedy Night Live', description: 'Stand-up comedy showcase', organizerId: organizers[4]._id, eventType: 'entertainment', location: { address: '333 Comedy Club, Brooklyn', lat: 40.6501, lng: -73.9496 }, dateStart: new Date('2024-11-18T19:00:00'), dateEnd: new Date('2024-11-18T23:00:00'), status: 'upcoming', attendees: { expectedCount: 250, registeredCount: 200 }, tickets: { totalDispersed: 250, totalSold: 200, pricePerTicket: 45 } }
     ]);
 
     // Create Co-Organizers (elevate some workers)
@@ -190,8 +190,10 @@ const seedDatabase = async () => {
     console.log('- 20 Jobs (with multiple positions)');
     console.log(`- ${applications.length} Applications`);
     console.log('- 5 Group Chats (with messages)');
-    console.log('\n🔑 Login: organizer1-5@eventflex.com / worker1-40@eventflex.com');
-    console.log('Password: password123');
+    console.log('\n🔑 Login Credentials:');
+    console.log('Main Organizer: syedadnanmohd@gmail.com / password123');
+    console.log('Other Organizers: organizer2-5@eventflex.com / password123');
+    console.log('Workers: worker1-40@eventflex.com / password123');
     
   } catch (error) {
     console.error('❌ Seeding error:', error);
