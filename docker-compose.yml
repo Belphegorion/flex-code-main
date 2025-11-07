@@ -15,12 +15,12 @@ services:
       - JWT_EXPIRE=1h
       - JWT_REFRESH_EXPIRE=7d
       - FRONTEND_URL=http://localhost:3000
-      # Optional Stripe secret key. Set this in your environment or an .env file if you want to enable Stripe.
-      # Do NOT check real secrets into source control.
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
     depends_on:
-      - mongo
-      - redis
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   frontend:
     build:
@@ -38,7 +38,12 @@ services:
       - mongo_data:/data/db
     environment:
       - MONGO_INITDB_DATABASE=eventflex
-    command: mongod --replSet rs0
+    healthcheck:
+      test: mongosh --eval 'db.adminCommand("ping")'
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   redis:
     image: redis:7-alpine
