@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import seedDatabase from './dummyData.js';
+import seedDatabase from './largeDummyData.js';
 
 dotenv.config();
 
