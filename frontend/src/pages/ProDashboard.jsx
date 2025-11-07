@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import Layout from '../components/common/Layout';
 import StatCard from '../components/common/StatCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -8,9 +9,14 @@ import { FiBriefcase, FiCheckCircle, FiClock, FiDollarSign } from 'react-icons/f
 import api from '../services/api';
 
 const ProDashboard = () => {
+  const { user, loading: authLoading } = useAuth();
   const [applications, setApplications] = useState([]);
   const [stats, setStats] = useState({ total: 0, pending: 0, accepted: 0, completed: 0 });
   const [loading, setLoading] = useState(true);
+
+  if (!authLoading && !user) {
+    return <Navigate to="/login" replace />;
+  }
 
   useEffect(() => {
     fetchApplications();
