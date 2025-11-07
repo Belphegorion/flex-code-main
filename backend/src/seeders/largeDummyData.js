@@ -87,9 +87,26 @@ const seedDatabase = async () => {
       yearsOfExperience: 8 + i
     })));
 
-    // Create 40 Workers
+    // Create 40 Workers + 1 custom worker
     const workerData = Array.from({ length: 40 }, (_, i) => ({ ...generateWorker(i + 1), password: hashedPassword }));
     const workers = await User.insertMany(workerData);
+    
+    const customWorker = await User.create({
+      name: 'New Worker',
+      email: 'newworker@gmail.com',
+      phone: '+1-555-9999',
+      password: hashedPassword,
+      role: 'worker',
+      profileCompleted: true,
+      ratingAvg: 4.5,
+      totalRatings: 10,
+      completedJobsCount: 5,
+      reliabilityScore: 0.90,
+      noShowCount: 0
+    });
+    
+    workers.push(customWorker);
+    
     await Profile.insertMany(workers.map((w, i) => generateProfile(w._id, i + 1)));
 
     // Create 10 Events
@@ -184,7 +201,7 @@ const seedDatabase = async () => {
     console.log('✅ Large database seeded successfully!');
     console.log('\n📊 Seeded Data:');
     console.log('- 5 Organizers');
-    console.log('- 40 Workers (with complete profiles & badges)');
+    console.log('- 41 Workers (with complete profiles & badges)');
     console.log('- 3 Co-Organizers');
     console.log('- 10 Events');
     console.log('- 20 Jobs (with multiple positions)');
@@ -194,6 +211,7 @@ const seedDatabase = async () => {
     console.log('Main Organizer: syedadnanmohd@gmail.com / password123');
     console.log('Other Organizers: organizer2-5@eventflex.com / password123');
     console.log('Workers: worker1-40@eventflex.com / password123');
+    console.log('Custom Worker: newworker@gmail.com / password123');
     
   } catch (error) {
     console.error('❌ Seeding error:', error);
