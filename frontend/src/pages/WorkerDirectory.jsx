@@ -112,7 +112,6 @@ export default function WorkerDirectory() {
         <div className="max-w-7xl mx-auto px-4">
           <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Worker Directory</h1>
 
-          {/* Filters */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 mb-8 shadow-xl border border-gray-100 dark:border-gray-700">
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
               <input
@@ -151,7 +150,6 @@ export default function WorkerDirectory() {
             </div>
           </div>
 
-          {/* Workers Grid */}
           {loading ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
@@ -226,23 +224,22 @@ export default function WorkerDirectory() {
             </div>
           )}
 
-        {/* Job Selection Modal */}
         {showJobSelect && selectedWorker && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-md w-full">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-md w-full border border-gray-200 dark:border-gray-700">
               <div className="p-6">
-                <h3 className="text-xl font-bold mb-4">Select Job to Offer</h3>
+                <h3 className="text-2xl font-bold mb-6 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Select Job to Offer</h3>
                 {jobs.length === 0 ? (
                   <p className="text-gray-600 dark:text-gray-400 mb-4">
                     No jobs available. Create a job first.
                   </p>
                 ) : (
-                  <div className="space-y-2 max-h-96 overflow-y-auto mb-4">
+                  <div className="space-y-3 max-h-96 overflow-y-auto mb-6">
                     {jobs.map(job => (
                       <button
                         key={job._id}
                         onClick={() => sendJobOffer(job._id)}
-                        className="w-full text-left p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                        className="w-full text-left p-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-indigo-500 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 dark:hover:from-gray-800 dark:hover:to-gray-800 transition-all"
                       >
                         <div className="font-semibold text-gray-900 dark:text-white">{job.title}</div>
                         <div className="text-sm text-gray-600 dark:text-gray-400">
@@ -254,7 +251,7 @@ export default function WorkerDirectory() {
                 )}
                 <button
                   onClick={() => setShowJobSelect(false)}
-                  className="w-full btn-secondary"
+                  className="w-full px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all"
                 >
                   Cancel
                 </button>
@@ -263,7 +260,6 @@ export default function WorkerDirectory() {
           </div>
         )}
 
-        {/* Chat Modal */}
         {showChat && selectedWorker && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col border border-gray-200 dark:border-gray-700">
@@ -313,6 +309,7 @@ export default function WorkerDirectory() {
             </div>
           </div>
         )}
+        </div>
       </div>
     </Layout>
   );
