@@ -19,6 +19,8 @@ auditLogSchema.index({ resource: 1, timestamp: -1 });
 
 const AuditLog = mongoose.model('AuditLog', auditLogSchema);
 
+export { AuditLog };
+
 export const logAction = async (userId, action, resource, resourceId, details = {}, req = null) => {
   if (!userId || !action || !resource) {
     console.warn('Audit log skipped: missing required parameters');

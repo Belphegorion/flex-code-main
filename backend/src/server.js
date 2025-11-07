@@ -12,7 +12,7 @@ import { startScheduledJobs } from './utils/scheduler.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
 import { securityHeaders, customSecurity } from './middleware/security.js';
 import { createDatabaseIndexes } from './utils/createIndexes.js';
-import AuditLogger from './utils/auditLogger.js';
+import { AuditLog, logAction } from './utils/auditLogger.js';
 
 // Routes
 import authRoutes from './routes/auth.js';
@@ -90,10 +90,12 @@ connectDB().then(async () => {
   
   // Log server startup
   try {
-    await AuditLogger.log({
-      userId: new mongoose.Types.ObjectId(), // System user
-      action: 'SERVER_START',
-      resourceType: 'System',
+    await logAction(
+      new mongoose.Types.ObjectId(), // System user
+      'SERVER_START',
+      'System',
+      null,
+      {
       details: {
         environment: process.env.NODE_ENV || 'development',
         port: process.env.PORT || 4000,
