@@ -35,6 +35,7 @@ import CostEstimator from './pages/CostEstimator';
 import ProfileSetup from './pages/ProfileSetup';
 import EventDetails from './pages/EventDetails';
 import EventEdit from './pages/EventEdit';
+import EnhancedEventEdit from './components/events/EnhancedEventEdit';
 import EventJobCreate from './pages/EventJobCreate';
 import JobEdit from './pages/JobEdit';
 import WorkHours from './pages/WorkHours';
@@ -170,7 +171,7 @@ function App() {
             
             <Route path="/events/:eventId/edit" element={
               <ProtectedRoute allowedRoles={['organizer']}>
-                <EventEdit />
+                <EnhancedEventEdit />
               </ProtectedRoute>
             } />
             

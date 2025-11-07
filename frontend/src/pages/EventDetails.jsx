@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiCalendar, FiMapPin, FiUsers, FiPlus, FiEdit2, FiTrash2, FiClock } from 'react-icons/fi';
 import Layout from '../components/common/Layout';
+import CoOrganizerManager from '../components/coorganizer/CoOrganizerManager';
+import CoOrganizerAnalytics from '../components/coorganizer/CoOrganizerAnalytics';
+import GroupHierarchy from '../components/groups/GroupHierarchy';
 import api from '../services/api';
 import { toast } from 'react-toastify';
 
@@ -133,6 +136,15 @@ export default function EventDetails() {
           </div>
         </div>
       </div>
+
+      {/* Co-Organizer Management */}
+      {eventId && (
+        <>
+          <CoOrganizerManager eventId={eventId} />
+          <CoOrganizerAnalytics eventId={eventId} />
+          <GroupHierarchy eventId={eventId} />
+        </>
+      )}
 
       {/* Jobs Section */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">

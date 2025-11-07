@@ -5,6 +5,7 @@ import { FiSend, FiUsers, FiArrowLeft, FiUserPlus, FiX, FiSettings, FiUserMinus,
 import Layout from '../components/common/Layout';
 import GroupScheduler from '../components/groups/GroupScheduler';
 import WorkStartButton from '../components/work/WorkStartButton';
+import ProfileImageLink from '../components/profile/ProfileImageLink';
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import socketService from '../services/socket';
@@ -424,9 +425,12 @@ export default function GroupChat() {
               <div className="p-4 space-y-3">
                 {group.participants?.map(member => (
                   <div key={member._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                    <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 text-white rounded-full flex items-center justify-center font-semibold shadow-md">
-                      {member.name?.charAt(0) || 'U'}
-                    </div>
+                    <ProfileImageLink
+                      userId={member._id}
+                      profilePhoto={member.profilePhoto}
+                      name={member.name}
+                      size="sm"
+                    />
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">{member.name}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{member.role}</p>
@@ -461,9 +465,12 @@ export default function GroupChat() {
                         key={member._id}
                         className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900"
                       >
-                        <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 text-white rounded-full flex items-center justify-center font-semibold shadow-md">
-                          {member.name?.charAt(0) || 'U'}
-                        </div>
+                        <ProfileImageLink
+                          userId={member._id}
+                          profilePhoto={member.profilePhoto}
+                          name={member.name}
+                          size="sm"
+                        />
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm truncate">{member.name}</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
@@ -550,9 +557,12 @@ export default function GroupChat() {
                             onChange={() => toggleWorkerSelection(worker._id)}
                             className="w-5 h-5 text-primary-600 rounded focus:ring-2 focus:ring-primary-500"
                           />
-                          <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 text-white rounded-full flex items-center justify-center font-semibold shadow-md">
-                            {worker.name?.charAt(0) || 'W'}
-                          </div>
+                          <ProfileImageLink
+                            userId={worker._id}
+                            profilePhoto={worker.profilePhoto}
+                            name={worker.name}
+                            size="sm"
+                          />
                           <div className="flex-1 min-w-0">
                             <p className="font-medium text-sm truncate">{worker.name}</p>
                             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{worker.email}</p>

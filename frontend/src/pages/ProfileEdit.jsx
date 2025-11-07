@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import Layout from '../components/common/Layout';
 import PhotoUpload from '../components/profile/PhotoUpload';
+import EnhancedProfileEdit from '../components/profile/EnhancedProfileEdit';
 import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
 

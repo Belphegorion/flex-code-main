@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import { FiStar, FiMail, FiPhone, FiMessageCircle, FiCheck, FiX } from 'react-icons/fi';
 import Layout from '../components/common/Layout';
+import ProfileImageLink from '../components/profile/ProfileImageLink';
 import api from '../services/api';
 
 export default function JobApplicants() {
@@ -50,6 +51,24 @@ export default function JobApplicants() {
     }
   };
 
+  const elevateWorker = async (workerId) => {
+    if (!job?.eventId) {
+      toast.error('Event information not available');
+      return;
+    }
+
+    try {
+      await api.post('/co-organizers/elevate', {
+        eventId: job.eventId,
+        workerId,
+        permissions: { canHireWorkers: true, canManageJobs: true }
+      });
+      toast.success('Worker elevated to co-organizer!');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to elevate worker');
+    }
+  };
+
 
 
   if (loading) {
@@ -93,9 +112,12 @@ export default function JobApplicants() {
                   className="card p-6"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-16 h-16 bg-primary-600 text-white rounded-full flex items-center justify-center text-2xl font-bold flex-shrink-0">
-                      {app.proId?.name?.charAt(0) || 'U'}
-                    </div>
+                    <ProfileImageLink
+                      userId={app.proId?._id}
+                      profilePhoto={app.proId?.profilePhoto}
+                      name={app.proId?.name}
+                      size="lg"
+                    />
                     
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-2">
@@ -173,9 +195,12 @@ export default function JobApplicants() {
               {acceptedApps.map(app => (
                 <div key={app._id} className="card p-4">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 bg-green-600 text-white rounded-full flex items-center justify-center text-lg font-bold">
-                      {app.proId?.name?.charAt(0)}
-                    </div>
+                    <ProfileImageLink
+                      userId={app.proId?._id}
+                      profilePhoto={app.proId?.profilePhoto}
+                      name={app.proId?.name}
+                      size="md"
+                    />
                     <div className="flex-1">
                       <h4 className="font-semibold">{app.proId?.name}</h4>
                       <p className="text-sm text-gray-600 dark:text-gray-400">{app.proId?.email}</p>
@@ -188,6 +213,14 @@ export default function JobApplicants() {
                     >
                       <FiMessageCircle /> Event Group Chat
                     </button>
+                    {job?.eventId && (
+                      <button
+                        onClick={() => elevateWorker(app.proId._id)}
+                        className="btn-secondary w-full"
+                      >
+                        Elevate to Co-Organizer
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -203,9 +236,12 @@ export default function JobApplicants() {
               {declinedApps.map(app => (
                 <div key={app._id} className="card p-4 opacity-60">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-400 text-white rounded-full flex items-center justify-center">
-                      {app.proId?.name?.charAt(0)}
-                    </div>
+                    <ProfileImageLink
+                      userId={app.proId?._id}
+                      profilePhoto={app.proId?.profilePhoto}
+                      name={app.proId?.name}
+                      size="sm"
+                    />
                     <div>
                       <p className="font-medium">{app.proId?.name}</p>
                       <p className="text-sm text-gray-500">Declined</p>
