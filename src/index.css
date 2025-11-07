@@ -1,0 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Modernized global styles inspired by the provided banner image.
+  - Blue page background
+  - Centered dark hero containers with light text
+  - Glass / framed card styles
+*/
+
+:root {
+  /* Color tokens */
+  --color-page-bg: #ffffff; /* neutral page background by default */
+  --landing-bg: #254a75; /* darker blue used only on landing */
+  --color-hero-bg: #050505; /* deep black for hero area */
+  --color-hero-accent: #6f93c0; /* default CTA blue */
+  --landing-cta: #0b4a83; /* darker CTA for landing page */
+  --color-muted: #6b7280;
+  --glass-alpha: 0.12;
+  --text-default: #0f172a;
+  --text-inverse: #ffffff;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Space Mono', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    background-color: var(--color-page-bg);
+    color: var(--text-default);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* subtle page grid like the reference */
+  .bg-grid {
+    background-image: radial-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+}
+
+@layer components {
+  /* Global card used across the app */
+  .card {
+    @apply bg-white rounded-lg shadow-lg p-6 dark:bg-gray-800/90 backdrop-blur-sm;
+    border: 1px solid rgba(15,23,42,0.06);
+    color: inherit;
+  }
+
+  /* Framed hero box matching the attached design */
+  /* The hero banner remains the single heavy framed "black box" on the landing page */
+  .hero-banner {
+    background: linear-gradient(180deg, rgba(0,0,0,0.92), rgba(0,0,0,0.96));
+    border: 6px solid rgba(0,0,0,0.85);
+    border-radius: 8px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+    color: var(--text-inverse);
+  }
+
+  .hero-inner {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-6 items-center;
+  }
+
+  .hero-cta {
+    background-color: var(--color-hero-accent);
+    color: var(--text-inverse);
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    font-weight: 700;
+    box-shadow: 0 6px 12px rgba(11,42,83,0.18);
+    transition: transform .12s ease, opacity .12s ease;
+  }
+  .hero-cta:hover { transform: translateY(-2px); opacity: .95; }
+
+  /* Landing-specific overrides: darker background and CTA */
+  .landing-page {
+    background-color: var(--landing-bg);
+  }
+  .landing-page .hero-cta { background-color: var(--landing-cta); box-shadow: 0 8px 18px rgba(3,36,64,0.35); }
+
+  /* Glass nav / header helpers */
+  .nav-glass {
+    background: rgba(255,255,255, var(--glass-alpha));
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .nav-link {
+    @apply text-gray-700 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white/90 transition-colors;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center font-semibold rounded-md px-4 py-2 shadow-sm;
+    background: var(--color-hero-accent);
+    color: white;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center px-3 py-2 rounded-md text-gray-700 dark:text-gray-100 border border-transparent hover:border-gray-300 dark:hover:border-white/10;
+    background: transparent;
+  }
+
+  .rounded-image-frame {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 4px solid rgba(255,255,255,0.04);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.45);
+  }
+}
+
+@layer utilities {
+  .animate-fadeIn { animation: fadeIn 0.36s ease-in; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px);} to {opacity:1; transform:none;} }
+}
+
+/* Small responsive helpers to keep hero readable */
+@media (max-width: 640px) {
+  .hero-banner { padding: 1rem; }
+}

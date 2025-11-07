@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "name": "Sarah Johnson",
+    "role": "Event Coordinator",
+    "company": "Elite Events Co.",
+    "avatar": "SJ",
+    "rating": 5,
+    "review": "FlexCode transformed how we hire event staff. The ML matching is incredibly accurate, and we've reduced no-shows by 80%.",
+    "date": "2024-12-15"
+  },
+  {
+    "id": 2,
+    "name": "Marcus Chen",
+    "role": "AV Technician",
+    "company": "Freelancer",
+    "avatar": "MC",
+    "rating": 5,
+    "review": "Best platform for finding quality event gigs. The payment system is secure and I always get paid on time. Highly recommend!",
+    "date": "2024-12-10"
+  },
+  {
+    "id": 3,
+    "name": "Emily Rodriguez",
+    "role": "Wedding Planner",
+    "company": "Dream Weddings",
+    "avatar": "ER",
+    "rating": 5,
+    "review": "The reliability scoring system helps us find trustworthy professionals. We've hired over 50 workers through FlexCode with zero issues.",
+    "date": "2024-12-08"
+  },
+  {
+    "id": 4,
+    "name": "David Kim",
+    "role": "Setup Crew Lead",
+    "company": "Pro Events Team",
+    "avatar": "DK",
+    "rating": 5,
+    "review": "Real-time chat and job notifications make coordination seamless. I've doubled my monthly bookings since joining.",
+    "date": "2024-12-05"
+  },
+  {
+    "id": 5,
+    "name": "Lisa Thompson",
+    "role": "Festival Organizer",
+    "company": "Summer Fest Productions",
+    "avatar": "LT",
+    "rating": 5,
+    "review": "Hired 30+ professionals for our festival through FlexCode. The bulk hiring feature and escrow system saved us countless hours.",
+    "date": "2024-12-01"
+  },
+  {
+    "id": 6,
+    "name": "James Wilson",
+    "role": "Sound Engineer",
+    "company": "Freelancer",
+    "avatar": "JW",
+    "rating": 5,
+    "review": "The match scores are spot-on! I only see jobs that fit my skills and location. No more wasting time on irrelevant postings.",
+    "date": "2024-11-28"
+  }
+]

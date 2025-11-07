@@ -1,0 +1,52 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - MONGO_URI=mongodb://mongo:27017/eventflex
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=f7f8e3a1d21d9d4181844d998596b0a7
+      - JWT_REFRESH_SECRET=f7f8e3a1d21d9d4181844d998596b0a7
+      - JWT_EXPIRE=1h
+      - JWT_REFRESH_EXPIRE=7d
+      - FRONTEND_URL=http://localhost:3000
+      # Optional Stripe secret key. Set this in your environment or an .env file if you want to enable Stripe.
+      # Do NOT check real secrets into source control.
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+    depends_on:
+      - mongo
+      - redis
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=eventflex
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  mongo_data:
+  redis_data:
