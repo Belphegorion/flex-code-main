@@ -177,17 +177,17 @@ export default function WorkerDirectory() {
                   <div className="flex-1">
                     <h3 className="font-bold text-xl text-gray-900 dark:text-white">{worker.name}</h3>
                     {worker.ratingAvg > 0 && (
-                      <div className=\"flex items-center gap-1 text-yellow-500\">
-                        <FiStar fill=\"currentColor\" />
+                      <div className="flex items-center gap-1 text-yellow-500">
+                        <FiStar fill="currentColor" />
                         <span>{worker.ratingAvg.toFixed(1)}</span>
-                        <span className=\"text-gray-500 text-sm\">({worker.ratingCount})</span>
+                        <span className="text-gray-500 text-sm">({worker.ratingCount})</span>
                       </div>
                     )}
                   </div>
                 </div>
 
                 {worker.bio && (
-                  <p className=\"text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2\">{worker.bio}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{worker.bio}</p>
                 )}
 
                 {worker.skills?.length > 0 && (
@@ -201,7 +201,7 @@ export default function WorkerDirectory() {
                 )}
 
                 {worker.location?.city && (
-                  <div className=\"flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-4\">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
                     <FiMapPin size={14} />
                     <span>{worker.location.city}</span>
                   </div>
@@ -265,29 +265,29 @@ export default function WorkerDirectory() {
 
         {/* Chat Modal */}
         {showChat && selectedWorker && (
-          <div className=\"fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4\">
-            <div className=\"bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col\">
-              <div className=\"p-4 border-b dark:border-gray-700 flex justify-between items-center\">
-                <div className=\"flex items-center gap-3\">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col border border-gray-200 dark:border-gray-700">
+              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-5 flex justify-between items-center text-white">
+                <div className="flex items-center gap-3">
                   <img
                     src={selectedWorker.profilePhoto || '/default-avatar.png'}
                     alt={selectedWorker.name}
-                    className=\"w-10 h-10 rounded-full\"
+                    className="w-12 h-12 rounded-xl ring-2 ring-white/30"
                   />
-                  <h3 className=\"font-semibold\">{selectedWorker.name}</h3>
+                  <h3 className="font-bold text-lg">{selectedWorker.name}</h3>
                 </div>
-                <button onClick={() => setShowChat(false)} className=\"text-gray-500 hover:text-gray-700\">
+                <button onClick={() => setShowChat(false)} className="text-white/80 hover:text-white text-2xl">
                   ✕
                 </button>
               </div>
 
-              <div className=\"flex-1 overflow-y-auto p-4 space-y-3\">
+              <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50 dark:bg-gray-800/50">
                 {conversation.map((msg, idx) => (
                   <div key={idx} className={`flex ${msg.senderId === 'me' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-xs px-4 py-2 rounded-lg ${
+                    <div className={`max-w-xs px-5 py-3 rounded-2xl shadow-md ${
                       msg.senderId === 'me' 
-                        ? 'bg-indigo-600 text-white' 
-                        : 'bg-gray-200 dark:bg-gray-700'
+                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white' 
+                        : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
                     }`}>
                       {msg.text}
                     </div>
@@ -295,17 +295,17 @@ export default function WorkerDirectory() {
                 ))}
               </div>
 
-              <div className=\"p-4 border-t dark:border-gray-700\">
-                <div className=\"flex gap-2\">
+              <div className="p-5 border-t dark:border-gray-700 bg-white dark:bg-gray-900">
+                <div className="flex gap-3">
                   <input
-                    type=\"text\"
+                    type="text"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                    placeholder=\"Type a message...\"
-                    className=\"flex-1 input-field\"
+                    placeholder="Type a message..."
+                    className="flex-1 px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                   />
-                  <button onClick={sendMessage} className=\"btn-primary\">
+                  <button onClick={sendMessage} className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg">
                     Send
                   </button>
                 </div>
