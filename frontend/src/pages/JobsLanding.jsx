@@ -21,13 +21,11 @@ const JobsLanding = () => {
   const fetchData = async () => {
     try {
       const [jobsData, profileData] = await Promise.all([
-        jobService.discoverJobs({ maxDistance: 50, status: 'active' }),
+        jobService.discoverJobs({ maxDistance: 50 }),
         api.get('/profiles/my-profile')
       ]);
 
-      const jobsList = (jobsData.jobs || jobsData || []).filter(job => 
-        job.status === 'active' || job.status === 'open'
-      );
+      const jobsList = (jobsData.jobs || jobsData || []);
       setJobs(jobsList);
       setFilteredJobs(jobsList);
       setProfile(profileData.profile || profileData);
