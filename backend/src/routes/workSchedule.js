@@ -24,7 +24,7 @@ router.get('/:eventId/summary', authenticate, authorize('organizer'), getEventWo
 // Worker routes
 router.post('/check-in', authenticate, authorize('worker'), checkInWorker);
 router.post('/check-out', authenticate, authorize('worker'), checkOutWorker);
-router.get('/:eventId/my-sessions', authenticate, authorize('worker'), getWorkerSessions);
+router.get('/:eventId/sessions', authenticate, authorize('worker'), getWorkerSessions);
 router.get('/:eventId/qr', authenticate, authorize('worker'), getWorkQRForWorker);
 
 export default router;

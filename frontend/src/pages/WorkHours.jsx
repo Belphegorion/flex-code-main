@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -26,8 +27,8 @@ export default function WorkHours() {
         api.get(`/events/${eventId}/jobs`)
       ]);
       
-      setEvent(eventRes.event);
-      setJobs(jobsRes.jobs || []);
+      setEvent(eventRes.data?.event || eventRes.event);
+      setJobs(jobsRes.data?.jobs || jobsRes.jobs || []);
     } catch (error) {
       console.error('Error fetching event data:', error);
     } finally {

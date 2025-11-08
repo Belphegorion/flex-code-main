@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import { FiSend, FiUsers } from 'react-icons/fi';
 import api from '../../services/api';
 
-export default function SendWorkQRButton({ eventId, eventTitle }) {
+export default function SendWorkQRButton({ eventId, eventTitle, onSuccess }) {
   const [sending, setSending] = useState(false);
 
   const sendWorkQR = async () => {
@@ -11,6 +11,7 @@ export default function SendWorkQRButton({ eventId, eventTitle }) {
     try {
       const res = await api.post(`/work-schedule/${eventId}/send-qr`);
       toast.success(`Work QR code sent to ${res.workersNotified} workers!`);
+      if (onSuccess) onSuccess();
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to send QR code');
     } finally {

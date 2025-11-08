@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react';
 import { FiClock, FiDollarSign, FiUsers, FiCalendar, FiEye, FiEyeOff } from 'react-icons/fi';
 import api from '../../services/api';
@@ -14,9 +15,10 @@ export default function WorkSummaryDashboard({ eventId }) {
   const fetchSummary = async () => {
     try {
       const res = await api.get(`/work-schedule/${eventId}/summary`);
-      setSummary(res);
+      setSummary(res.data || res);
     } catch (error) {
       console.error('Error fetching work summary:', error);
+      setSummary({ workers: [], overall: {} });
     } finally {
       setLoading(false);
     }
@@ -51,7 +53,7 @@ export default function WorkSummaryDashboard({ eventId }) {
             <FiUsers className="text-blue-600" size={24} />
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400">Total Workers</p>
-              <p className="text-2xl font-bold text-blue-600">{summary.overall.totalWorkers || 0}</p>
+              <p className="text-2xl font-bold text-blue-600">{summary.overall?.totalWorkers || 0}</p>
             </div>
           </div>
         </div>
@@ -61,7 +63,7 @@ export default function WorkSummaryDashboard({ eventId }) {
             <FiClock className="text-green-600" size={24} />
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400">Total Hours</p>
-              <p className="text-2xl font-bold text-green-600">{summary.overall.totalHours || 0}</p>
+              <p className="text-2xl font-bold text-green-600">{Math.round((summary.overall?.totalHours || 0) * 100) / 100}</p>
             </div>
           </div>
         </div>
@@ -71,7 +73,7 @@ export default function WorkSummaryDashboard({ eventId }) {
             <FiDollarSign className="text-purple-600" size={24} />
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400">Total Earnings</p>
-              <p className="text-2xl font-bold text-purple-600">${summary.overall.totalEarnings || 0}</p>
+              <p className="text-2xl font-bold text-purple-600">${Math.round((summary.overall?.totalEarnings || 0) * 100) / 100}</p>
             </div>
           </div>
         </div>
@@ -81,7 +83,7 @@ export default function WorkSummaryDashboard({ eventId }) {
             <FiCalendar className="text-orange-600" size={24} />
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400">Total Sessions</p>
-              <p className="text-2xl font-bold text-orange-600">{summary.overall.totalSessions || 0}</p>
+              <p className="text-2xl font-bold text-orange-600">{summary.overall?.totalSessions || 0}</p>
             </div>
           </div>
         </div>
@@ -97,19 +99,19 @@ export default function WorkSummaryDashboard({ eventId }) {
         ) : (
           <div className="space-y-3">
             {summary.workers.map(worker => (
-              <div key={worker.worker._id} className="border rounded-lg overflow-hidden">
+              <div key={worker.worker?._id || Math.random()} className="border rounded-lg overflow-hidden">
                 <div 
                   className="p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                  onClick={() => toggleWorkerDetails(worker.worker._id)}
+                  onClick={() => toggleWorkerDetails(worker.worker?._id)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-primary-600 text-white rounded-full flex items-center justify-center font-semibold">
-                        {worker.worker.name?.charAt(0) || 'W'}
+                        {worker.worker?.name?.charAt(0) || 'W'}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h4 className="font-medium">{worker.worker.name}</h4>
+                          <h4 className="font-medium">{worker.worker?.name || 'Unknown Worker'}</h4>
                           {worker.badge && (
                             <span 
                               className="text-lg cursor-pointer" 
@@ -119,7 +121,7 @@ export default function WorkSummaryDashboard({ eventId }) {
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{worker.worker.email}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{worker.worker?.email || 'No email'}</p>
                       </div>
                     </div>
                     
@@ -143,7 +145,7 @@ export default function WorkSummaryDashboard({ eventId }) {
                   </div>
                 </div>
 
-                {expandedWorker === worker.worker._id && (
+                {expandedWorker === worker.worker?._id && (
                   <div className="border-t bg-gray-50 dark:bg-gray-900 p-4">
                     <h5 className="font-medium mb-3">Work Sessions</h5>
                     <div className="space-y-2">

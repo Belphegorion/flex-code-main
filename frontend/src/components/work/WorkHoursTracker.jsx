@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { FiClock, FiPlay, FiSquare, FiQrCode, FiDownload } from 'react-icons/fi';
@@ -18,11 +19,12 @@ export default function WorkHoursTracker({ eventId }) {
   const fetchSessions = async () => {
     try {
       const res = await api.get(`/work-schedule/${eventId}/sessions`);
-      setSessions(res.sessions || []);
-      setSummary(res.summary || {});
+      setSessions(res.data?.sessions || res.sessions || []);
+      setSummary(res.data?.summary || res.summary || {});
       
       // Check for active session
-      const active = res.sessions?.find(s => s.status === 'checked-in');
+      const sessionsList = res.data?.sessions || res.sessions || [];
+      const active = sessionsList.find(s => s.status === 'checked-in');
       setActiveSession(active || null);
     } catch (error) {
       console.error('Error fetching sessions:', error);
@@ -91,7 +93,8 @@ export default function WorkHoursTracker({ eventId }) {
           qrToken,
           jobId: activeSession.jobId
         });
-        toast.success(`Checked out! Worked ${res.session.totalHours} hours, earned $${res.session.earnings}`);
+        const session = res.data?.session || res.session;
+        toast.success(`Checked out! Worked ${session.totalHours}h, earned $${session.earnings}`);
         setActiveSession(null);
       } else {
         // Check in
@@ -99,8 +102,9 @@ export default function WorkHoursTracker({ eventId }) {
           qrToken,
           jobId
         });
+        const session = res.data?.session || res.session;
         toast.success('Checked in successfully!');
-        setActiveSession(res.session);
+        setActiveSession(session);
       }
       fetchSessions();
     } catch (error) {
@@ -111,10 +115,16 @@ export default function WorkHoursTracker({ eventId }) {
   const downloadQR = async () => {
     try {
       const res = await api.get(`/work-schedule/${eventId}/qr`);
+      const qrCode = res.data?.qrCode || res.qrCode;
+      
+      if (!qrCode) {
+        toast.error('No QR code available');
+        return;
+      }
       
       // Create download link
       const link = document.createElement('a');
-      link.href = res.qrCode;
+      link.href = qrCode;
       link.download = `work-qr-${eventId}.png`;
       document.body.appendChild(link);
       link.click();
@@ -122,7 +132,7 @@ export default function WorkHoursTracker({ eventId }) {
       
       toast.success('QR code downloaded!');
     } catch (error) {
-      toast.error('Failed to download QR code');
+      toast.error(error.response?.data?.message || 'Failed to download QR code');
     }
   };
 
@@ -208,17 +218,20 @@ export default function WorkHoursTracker({ eventId }) {
           <p className="text-gray-500 text-center py-8">No work sessions yet</p>
         ) : (
           <div className="space-y-3">
-            {sessions.map((session, idx) => (
-              <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            {sessions.map((session) => (
+              <div key={session._id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div>
-                  <div className="font-medium">{session.jobId?.title}</div>
+                  <div className="font-medium">{session.jobId?.title || 'Unknown Job'}</div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">
                     {new Date(session.date).toLocaleDateString()}
                   </div>
+                  {session.status === 'checked-in' && (
+                    <span className="text-xs text-blue-600 font-medium">Currently working</span>
+                  )}
                 </div>
                 <div className="text-right">
-                  <div className="font-medium">{session.totalHours}h</div>
-                  <div className="text-sm text-green-600">${session.earnings}</div>
+                  <div className="font-medium">{session.totalHours || 0}h</div>
+                  <div className="text-sm text-green-600">${session.earnings || 0}</div>
                 </div>
               </div>
             ))}

@@ -1,10 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useRef, useEffect } from 'react';
 import { Html5QrcodeScanner, Html5Qrcode } from 'html5-qrcode';
 import { toast } from 'react-toastify';
 import { FiCamera, FiUpload, FiX } from 'react-icons/fi';
+import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
 
 export default function QRScanner({ onScanSuccess, onClose }) {
+  const { user } = useAuth();
   const [scanMode, setScanMode] = useState('camera');
   const [scanning, setScanning] = useState(false);
   const scannerRef = useRef(null);
@@ -78,9 +81,10 @@ export default function QRScanner({ onScanSuccess, onClose }) {
     
     // Get available jobs for this event
     const jobsRes = await api.get(`/events/${eventId}/jobs`);
-    const userJobs = jobsRes.jobs?.filter(job => 
-      job.hiredPros?.some(worker => worker._id === localStorage.getItem('userId'))
-    ) || [];
+    const allJobs = jobsRes.data?.jobs || jobsRes.jobs || [];
+    const userJobs = allJobs.filter(job => 
+      job.hiredPros?.some(worker => worker._id?.toString() === user?._id?.toString())
+    );
 
     if (userJobs.length === 0) {
       toast.error('You are not assigned to any jobs in this event');
