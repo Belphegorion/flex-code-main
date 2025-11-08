@@ -2,6 +2,7 @@ import Event from '../models/Event.js';
 import Job from '../models/Job.js';
 import WorkSession from '../models/WorkSession.js';
 import { calculateBadge } from '../utils/badgeSystem.js';
+import { getOrCreateEventGroup } from '../utils/groupManager.js';
 
 export const createEvent = async (req, res) => {
   try {
@@ -20,6 +21,14 @@ export const createEvent = async (req, res) => {
       ...req.body,
       organizerId: req.userId
     });
+    
+    // AUTO-CREATE EVENT GROUP
+    try {
+      await getOrCreateEventGroup(event._id, req.userId);
+    } catch (groupError) {
+      console.error('Failed to create event group:', groupError);
+    }
+    
     res.status(201).json({ event });
   } catch (error) {
     res.status(500).json({ message: 'Error creating event', error: error.message });

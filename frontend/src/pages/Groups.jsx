@@ -136,7 +136,14 @@ export default function Groups() {
                       {/* Content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-baseline justify-between mb-1">
-                          <h3 className="font-bold text-lg truncate text-gray-900 dark:text-white">{group.name}</h3>
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <h3 className="font-bold text-lg truncate text-gray-900 dark:text-white">{group.name}</h3>
+                            {group.groupType === 'worker' && (
+                              <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-2 py-0.5 rounded-full flex-shrink-0">
+                                Team
+                              </span>
+                            )}
+                          </div>
                           {group.lastMessageAt && (
                             <span className="text-xs text-gray-500 dark:text-gray-400 ml-2 flex-shrink-0">
                               {formatTime(group.lastMessageAt)}

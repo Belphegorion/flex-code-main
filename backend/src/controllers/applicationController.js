@@ -8,6 +8,7 @@ import WorkSession from '../models/WorkSession.js';
 import WorkSchedule from '../models/WorkSchedule.js';
 import { scheduleReliabilityUpdate, scheduleJobReminder } from '../utils/jobQueue.js';
 import { createNotification } from './notificationController.js';
+import { addWorkerToEventGroup } from '../utils/groupManager.js';
 
 export const applyToJob = async (req, res) => {
   try {
@@ -130,37 +131,13 @@ export const acceptApplication = async (req, res) => {
     
     await job.save();
 
-    if (job.eventId) {
-      const event = await Event.findById(job.eventId);
-      let group = await GroupChat.findOne({ eventId: job.eventId });
-      
-      if (!group) {
-        group = await GroupChat.create({
-          name: event.title,
-          eventId: job.eventId,
-          participants: [req.userId, application.proId],
-          createdBy: req.userId,
-          messages: [{
-            senderId: req.userId,
-            text: `Welcome to ${event.title}!`,
-            type: 'system'
-          }]
-        });
-      } else if (!group.participants.includes(application.proId)) {
-        group.participants.push(application.proId);
-        const worker = await User.findById(application.proId).select('name');
-        if (worker) {
-          group.messages.push({
-            senderId: req.userId,
-            text: `${worker.name} joined ${event.title}`,
-            type: 'system'
-          });
-        }
-        await group.save();
-      }
-    }
-
     const workerId = application.proId;
+    const io = req.app.get('io');
+
+    // AUTO-ADD TO GROUP
+    if (job.eventId) {
+      await addWorkerToEventGroup(job.eventId, application.proId, req.userId, io);
+    }
 
     await createNotification(workerId, {
       type: 'acceptance',
@@ -172,7 +149,6 @@ export const acceptApplication = async (req, res) => {
     });
 
     // Emit socket event
-    const io = req.app.get('io');
     io.to(`user_${workerId}`).emit('notification', {
       type: 'acceptance',
       message: `Application accepted for ${job.title}`

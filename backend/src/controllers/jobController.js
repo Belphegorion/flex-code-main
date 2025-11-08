@@ -4,6 +4,7 @@ import Event from '../models/Event.js';
 import Profile from '../models/Profile.js';
 import { generateQRCode } from '../utils/qrGenerator.js';
 import { calculateMatchScores } from '../utils/matchingAlgorithm.js';
+import { addWorkerToEventGroup, addWorkersToEventGroup } from '../utils/groupManager.js';
 
 export const createJob = async (req, res) => {
   try {
@@ -334,10 +335,16 @@ export const hirePro = async (req, res) => {
       req.transactionData = { job, proIds, applications };
     });
 
-    // Post-transaction: notifications and audit log
+    // Post-transaction: notifications, audit log, and auto-add to group
     const { job, proIds } = req.transactionData;
     const { createNotification } = await import('./notificationController.js');
     const { logAction } = await import('../utils/auditLogger.js');
+    
+    // AUTO-ADD WORKERS TO GROUP
+    if (job.eventId) {
+      const io = req.app.get('io');
+      await addWorkersToEventGroup(job.eventId, proIds, req.userId, io);
+    }
     
     await Promise.all([
       ...proIds.map(proId => 
@@ -427,9 +434,19 @@ export const bulkAcceptApplications = async (req, res) => {
       req.transactionData = { applications };
     });
     
+    // AUTO-ADD WORKERS TO GROUPS
+    const { applications } = req.transactionData;
+    const io = req.app.get('io');
+    
+    for (const app of applications) {
+      if (app.jobId?.eventId) {
+        await addWorkerToEventGroup(app.jobId.eventId, app.proId, req.userId, io);
+      }
+    }
+    
     res.json({ 
-      message: `Successfully accepted ${req.transactionData.applications.length} applications`,
-      count: req.transactionData.applications.length
+      message: `Successfully accepted ${applications.length} applications`,
+      count: applications.length
     });
   } catch (error) {
     const statusCode = error.message.includes('Unauthorized') ? 403 :
