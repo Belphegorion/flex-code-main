@@ -141,10 +141,10 @@ export const discoverJobs = async (req, res) => {
     const sortOrder = sortBy === 'payPerPerson' ? -1 : -1; // Highest pay first, newest first for others
 
     if (skills) {
-      filter.requiredSkills = { $in: skills.split(',') };
+      filter.requiredSkills = { $in: skills.split(',').map(s => s.trim()) };
     }
     if (city) {
-      filter['location.city'] = city;
+      filter['location.city'] = { $regex: city, $options: 'i' };
     }
     if (minPay || maxPay) {
       filter.payPerPerson = {};
@@ -170,7 +170,7 @@ export const discoverJobs = async (req, res) => {
     let processedJobs = jobs;
 
     // Apply location-based filtering if user has profile with location
-    if (req.user.role === 'worker') {
+    if (req.user?.role === 'worker') {
       const profile = await Profile.findOne({ userId: req.userId }).lean();
       
       if (profile?.location?.lat && maxDistance) {
@@ -188,7 +188,12 @@ export const discoverJobs = async (req, res) => {
       }
 
       // Apply matching algorithm only to current page results
-      processedJobs = await calculateMatchScores(processedJobs, req.userId);
+      try {
+        processedJobs = await calculateMatchScores(processedJobs, req.userId);
+      } catch (matchError) {
+        console.error('Match score calculation error:', matchError);
+        // Continue without match scores
+      }
     }
 
     const totalPages = Math.ceil(totalCount / limitNum);
@@ -216,6 +221,7 @@ export const discoverJobs = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Job discovery error:', error);
     res.status(500).json({ message: 'Error discovering jobs', error: error.message });
   }
 };

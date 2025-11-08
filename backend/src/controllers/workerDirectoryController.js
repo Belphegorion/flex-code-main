@@ -11,42 +11,67 @@ export const searchWorkers = async (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
 
-    const userFilter = { role: 'worker' };
+    const userFilter = { role: 'worker', isActive: true };
     if (minRating) userFilter.ratingAvg = { $gte: Number(minRating) };
     if (search) userFilter.name = { $regex: search, $options: 'i' };
 
+    // Build profile filter for optional matching
     const profileFilter = {};
-    if (skills) profileFilter.skills = { $in: skills.split(',') };
+    if (skills) profileFilter.skills = { $in: skills.split(',').map(s => s.trim()) };
     if (location) profileFilter['location.city'] = { $regex: location, $options: 'i' };
     if (availability) profileFilter.availability = availability;
 
-    const profiles = await Profile.find(profileFilter)
-      .populate({
-        path: 'userId',
-        match: userFilter,
-        select: 'name email profilePhoto ratingAvg ratingCount badges'
-      })
+    // Get all workers matching user filter
+    const users = await User.find(userFilter)
+      .select('name email profilePhoto ratingAvg ratingCount badges bio location')
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
-    const workers = profiles.filter(p => p.userId).map(p => ({
-      _id: p.userId._id,
-      name: p.userId.name,
-      email: p.userId.email,
-      profilePhoto: p.userId.profilePhoto,
-      ratingAvg: p.userId.ratingAvg,
-      ratingCount: p.userId.ratingCount,
-      badges: p.userId.badges,
-      skills: p.skills,
-      location: p.location,
-      availability: p.availability,
-      bio: p.bio
-    }));
+    // Get profiles for these users
+    const userIds = users.map(u => u._id);
+    const profiles = await Profile.find({ 
+      userId: { $in: userIds },
+      ...profileFilter 
+    }).lean();
 
-    const total = await Profile.countDocuments(profileFilter);
+    // Create profile map
+    const profileMap = {};
+    profiles.forEach(p => {
+      profileMap[p.userId.toString()] = p;
+    });
+
+    // Merge user and profile data
+    const workers = users
+      .filter(user => {
+        // If profile filters exist, only include users with matching profiles
+        if (Object.keys(profileFilter).length > 0) {
+          return profileMap[user._id.toString()];
+        }
+        return true;
+      })
+      .map(user => {
+        const profile = profileMap[user._id.toString()] || {};
+        return {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          profilePhoto: user.profilePhoto,
+          ratingAvg: user.ratingAvg || 0,
+          ratingCount: user.ratingCount || 0,
+          badges: user.badges || [],
+          skills: profile.skills || [],
+          location: profile.location || user.location || {},
+          availability: profile.availability || 'flexible',
+          bio: profile.bio || user.bio || ''
+        };
+      });
+
+    const total = await User.countDocuments(userFilter);
 
     res.json({ workers, total, page, pages: Math.ceil(total / limit) });
   } catch (error) {
+    console.error('Worker search error:', error);
     res.status(500).json({ message: 'Error searching workers', error: error.message });
   }
 };
