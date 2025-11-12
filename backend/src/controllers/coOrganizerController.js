@@ -2,6 +2,7 @@ import CoOrganizer from '../models/CoOrganizer.js';
 import Event from '../models/Event.js';
 import User from '../models/User.js';
 import GroupChat from '../models/GroupChat.js';
+import { coOrganizerToLegacy } from '../utils/dtoMappers.js';
 
 export const hireCoOrganizer = async (req, res) => {
   try {
@@ -69,7 +70,7 @@ export const hireCoOrganizer = async (req, res) => {
       message: `You are now co-organizer for ${event.title}`
     });
 
-    res.json({ message: 'Co-organizer hired successfully', coOrganizer });
+    res.json({ message: 'Co-organizer hired successfully', coOrganizer: coOrganizerToLegacy(coOrganizer) });
   } catch (error) {
     res.status(500).json({ message: 'Error hiring co-organizer', error: error.message });
   }
@@ -135,7 +136,7 @@ export const elevateWorkerToCoOrganizer = async (req, res) => {
       message: `You are now co-organizer for ${event.title}`
     });
 
-    res.json({ message: 'Worker elevated to co-organizer', coOrganizer });
+    res.json({ message: 'Worker elevated to co-organizer', coOrganizer: coOrganizerToLegacy(coOrganizer) });
   } catch (error) {
     res.status(500).json({ message: 'Error elevating worker', error: error.message });
   }
@@ -154,7 +155,7 @@ export const getEventCoOrganizers = async (req, res) => {
       .populate('userId', 'name email profilePhoto')
       .populate('addedBy', 'name');
 
-    res.json({ coOrganizers });
+    res.json({ coOrganizers: coOrganizers.map(co => coOrganizerToLegacy(co)) });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching co-organizers', error: error.message });
   }

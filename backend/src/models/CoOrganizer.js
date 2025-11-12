@@ -1,43 +1,40 @@
 import mongoose from 'mongoose';
 
 const coOrganizerSchema = new mongoose.Schema({
-  eventId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Event',
-    required: true
-  },
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  addedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
+  // New fields
+  jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job', index: true },
+  organizerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  coOrganizerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  // Legacy compatibility fields (event-based)
+  eventId: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', index: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  
   permissions: {
-    canHireWorkers: { type: Boolean, default: true },
-    canManageJobs: { type: Boolean, default: true },
-    canViewFinancials: { type: Boolean, default: false },
-    canEditEvent: { type: Boolean, default: false },
-    canManageGroups: { type: Boolean, default: true }
+    canEditJob: { type: Boolean, default: false },
+    canManageApplicants: { type: Boolean, default: true },
+    canManageAttendance: { type: Boolean, default: true },
+    canSendMessages: { type: Boolean, default: true },
+    canViewReports: { type: Boolean, default: false },
+    canProcessPayments: { type: Boolean, default: false }
   },
-  status: {
+  
+  invitationStatus: { type: String, enum: ['pending', 'accepted', 'declined', 'revoked'], default: 'pending' },
+  invitedAt: { type: Date, default: Date.now },
+  respondedAt: Date,
+  lastActiveAt: Date,
+  
+  actions: [{
     type: String,
-    enum: ['active', 'inactive'],
-    default: 'active'
-  },
-  elevatedFrom: {
-    type: String,
-    enum: ['hired', 'worker'],
-    required: true
-  }
+    description: String,
+    timestamp: { type: Date, default: Date.now }
+  }]
 }, {
   timestamps: true
 });
 
-coOrganizerSchema.index({ eventId: 1, userId: 1 }, { unique: true });
-coOrganizerSchema.index({ eventId: 1, status: 1 });
+coOrganizerSchema.index({ jobId: 1, coOrganizerId: 1 }, { unique: false });
+coOrganizerSchema.index({ eventId: 1, userId: 1 }, { unique: false });
+coOrganizerSchema.index({ coOrganizerId: 1, invitationStatus: 1 });
 
 export default mongoose.model('CoOrganizer', coOrganizerSchema);

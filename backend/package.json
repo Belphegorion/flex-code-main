@@ -13,6 +13,8 @@
     "format": "prettier --write src/**/*.js"
   },
   "dependencies": {
+    "axios": "^1.13.2",
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "bull": "^4.16.5",
     "cloudinary": "^2.7.0",
@@ -21,9 +23,10 @@
     "dotenv": "^17.2.3",
     "express": "^4.19.2",
     "express-mongo-sanitize": "^2.2.0",
-    "express-rate-limit": "^7.1.5",
+    "express-rate-limit": "^7.5.1",
     "express-validator": "^7.2.1",
     "helmet": "^7.1.0",
+    "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.1",
     "morgan": "^1.10.0",
@@ -33,7 +36,8 @@
     "qrcode": "^1.5.4",
     "redis": "^5.8.3",
     "socket.io": "^4.8.1",
-    "stripe": "^19.1.0"
+    "stripe": "^19.1.0",
+    "winston": "^3.18.3"
   },
   "devDependencies": {
     "@types/jest": "^29.5.11",

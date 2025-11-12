@@ -118,3 +118,69 @@
 @media (max-width: 640px) {
   .hero-banner { padding: 1rem; }
 }
+
+/* ===== UI bundle light/dark tokens and utility shims (Tailwind v3 compatible) ===== */
+@layer base {
+  :root {
+    --radius: 10px;
+    --background: 255 255 255; /* white */
+    --foreground: 15 23 42;    /* slate-900 */
+    --card: 255 255 255;
+    --card-foreground: 15 23 42;
+    --popover: 255 255 255;
+    --popover-foreground: 15 23 42;
+    --primary: 37 99 235;      /* primary-600 */
+    --primary-foreground: 255 255 255;
+    --secondary: 241 245 249;  /* slate-100 */
+    --secondary-foreground: 15 23 42;
+    --muted: 241 245 249;      /* slate-100 */
+    --muted-foreground: 100 116 139; /* slate-500 */
+    --accent: 241 245 249;
+    --accent-foreground: 15 23 42;
+    --destructive: 220 38 38;  /* red-600 */
+    --border: 226 232 240;     /* slate-200 */
+    --input: 226 232 240;      /* slate-200 */
+    --ring: 99 102 241;        /* indigo-500-ish */
+  }
+  .dark {
+    --background: 15 23 42;    /* slate-900 */
+    --foreground: 248 250 252; /* slate-50 */
+    --card: 30 41 59;          /* slate-800 */
+    --card-foreground: 248 250 252;
+    --popover: 30 41 59;
+    --popover-foreground: 248 250 252;
+    --primary: 99 102 241;     /* indigo-500 */
+    --primary-foreground: 255 255 255;
+    --secondary: 51 65 85;     /* slate-700 */
+    --secondary-foreground: 248 250 252;
+    --muted: 51 65 85;
+    --muted-foreground: 148 163 184; /* slate-400 */
+    --accent: 51 65 85;
+    --accent-foreground: 248 250 252;
+    --destructive: 239 68 68;  /* red-500 */
+    --border: 71 85 105;       /* slate-600 */
+    --input: 71 85 105;
+    --ring: 99 102 241;
+  }
+}
+
+/* Utility shims for e.g. bg-background, text-foreground, border-border, etc. */
+@layer utilities {
+  .bg-background { background-color: rgb(var(--background)); }
+  .text-foreground { color: rgb(var(--foreground)); }
+  .bg-card { background-color: rgb(var(--card)); }
+  .text-card-foreground { color: rgb(var(--card-foreground)); }
+  .bg-popover { background-color: rgb(var(--popover)); }
+  .text-popover-foreground { color: rgb(var(--popover-foreground)); }
+  .bg-primary { background-color: rgb(var(--primary)); }
+  .text-primary { color: rgb(var(--primary)); }
+  .text-primary-foreground { color: rgb(var(--primary-foreground)); }
+  .bg-secondary { background-color: rgb(var(--secondary)); }
+  .text-secondary-foreground { color: rgb(var(--secondary-foreground)); }
+  .bg-accent { background-color: rgb(var(--accent)); }
+  .text-accent-foreground { color: rgb(var(--accent-foreground)); }
+  .text-muted-foreground { color: rgb(var(--muted-foreground)); }
+  .border-border { border-color: rgb(var(--border)); }
+  .border-input { border-color: rgb(var(--input)); }
+  .ring-ring { --tw-ring-color: rgb(var(--ring)); }
+}

@@ -41,6 +41,7 @@ import SponsorEvents from './pages/SponsorEvents';
 import LeaderboardPage from './pages/Leaderboard';
 import EventWorkersDisplay from './components/badges/EventWorkersDisplay';
 import WorkQR from './pages/WorkQR';
+import UiShowcase from './pages/UiShowcase';
 
 function App() {
   return (
@@ -53,6 +54,7 @@ function App() {
                 <Toast />
                 <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/ui-showcase" element={<UiShowcase />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             

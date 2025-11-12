@@ -13,6 +13,7 @@ import { apiLimiter } from './middleware/rateLimiter.js';
 import { securityHeaders, customSecurity } from './middleware/security.js';
 import { createDatabaseIndexes } from './utils/createIndexes.js';
 import { AuditLog, logAction } from './utils/auditLogger.js';
+import sanitizeInput from './middleware/sanitizer.js';
 
 // Routes
 import authRoutes from './routes/auth.js';
@@ -126,6 +127,8 @@ app.use(cors({
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Input sanitizer
+app.use(sanitizeInput);
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -254,3 +257,4 @@ httpServer.listen(PORT, () => {
 });
 
 export default app;
+export { io };
