@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { FiBriefcase, FiGlobe, FiFileText } from 'react-icons/fi';
 import api from '../../services/api';
+import { useAuth } from '../../hooks/useAuth';
 
 export default function OrganizerProfileSetup({ onComplete }) {
   const [formData, setFormData] = useState({
@@ -11,12 +12,23 @@ export default function OrganizerProfileSetup({ onComplete }) {
     bio: ''
   });
   const [loading, setLoading] = useState(false);
+  const { updateUser } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post('/profile-setup/organizer', formData);
+      const response = await api.post('/profile-setup/organizer', formData);
+      
+      // Update auth context with returned user data
+      if (response.user) {
+        updateUser(response.user);
+      } else {
+        // Fallback: manually mark profile as complete
+        updateUser({ profileCompleted: true });
+      }
+      
+      toast.success('Profile completed successfully!');
       onComplete();
     } catch (error) {
       toast.error(error.response?.data?.message || 'Error completing profile');

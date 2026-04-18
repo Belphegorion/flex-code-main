@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { useAuth } from '../hooks/useAuth';
-import api from '../services/api';
 import Layout from '../components/common/Layout';
 import WorkerProfileSetup from '../components/profile/WorkerProfileSetup';
 import OrganizerProfileSetup from '../components/profile/OrganizerProfileSetup';
@@ -11,28 +10,18 @@ import SponsorProfileSetup from '../components/profile/SponsorProfileSetup';
 import { FiCheckCircle } from 'react-icons/fi';
 
 export default function ProfileSetup() {
-  const { user, updateUser } = useAuth();
+  const { user, loading: authLoading, updateUser } = useAuth();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [profileStatus, setProfileStatus] = useState(null);
 
   useEffect(() => {
-    checkProfileStatus();
-  }, []);
-
-  const checkProfileStatus = async () => {
-    try {
-      const res = await api.get('/profile-setup/status');
-      setProfileStatus(res);
-      if (res.profileCompleted) {
+    // Only check when auth is fully loaded
+    if (!authLoading && user) {
+      // If profile is already completed, redirect to dashboard
+      if (user.profileCompleted) {
         navigate(getDashboardRoute());
       }
-    } catch (error) {
-      console.error('Error checking profile status:', error);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [authLoading, user, navigate]);
 
   const getDashboardRoute = () => {
     if (user?.role === 'worker') return '/worker';
@@ -47,11 +36,23 @@ export default function ProfileSetup() {
     navigate(getDashboardRoute());
   };
 
-  if (loading) {
+  if (authLoading) {
     return (
       <Layout>
         <div className="flex justify-center items-center min-h-screen">
           <div className="w-16 h-16 border-4 border-gray-200 dark:border-gray-700 border-t-primary-600 rounded-full animate-spin"></div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center min-h-screen">
+          <div className="text-center">
+            <p className="text-gray-600 dark:text-gray-400">Loading user data...</p>
+          </div>
         </div>
       </Layout>
     );

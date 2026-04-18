@@ -56,6 +56,8 @@ const userSchema = new mongoose.Schema({
   phone: String,
   bio: String,
   profilePhoto: String,
+  profileCompleted: { type: Boolean, default: false },
+  kycStatus: { type: String, enum: ['pending', 'approved', 'rejected', 'not_started'], default: 'not_started' },
   skills: [String],
   badges: [String],
   completedJobsCount: { type: Number, default: 0 },

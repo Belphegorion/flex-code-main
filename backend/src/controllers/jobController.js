@@ -34,6 +34,12 @@ export const createJob = async (req, res) => {
     job.qrCode = qrCode;
     await job.save();
 
+    // Notify matching workers asynchronously (don't block response)
+    const { default: NotificationService } = await import('../services/NotificationService.js');
+    NotificationService.notifyMatchingWorkers(job).catch(error => {
+      console.error('Background job: Error notifying matching workers', { jobId: job._id, error: error.message });
+    });
+
     res.status(201).json({
       message: 'Job created successfully',
       job

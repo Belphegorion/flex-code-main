@@ -8,14 +8,15 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4000
-      - MONGO_URI=mongodb://mongo:27017/eventflex
-      - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=f7f8e3a1d21d9d4181844d998596b0a7
-      - JWT_REFRESH_SECRET=f7f8e3a1d21d9d4181844d998596b0a7
-      - JWT_EXPIRE=1h
-      - JWT_REFRESH_EXPIRE=7d
-      - FRONTEND_URL=http://localhost:3000
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - MONGO_URI=${MONGO_URI:-mongodb://mongo:27017/eventflex}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - JWT_EXPIRE=${JWT_EXPIRE:-1h}
+      - JWT_REFRESH_EXPIRE=${JWT_REFRESH_EXPIRE:-7d}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - CORS_ORIGIN=${CORS_ORIGIN:-https://yourdomain.com}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
     depends_on:
       mongo:
         condition: service_healthy

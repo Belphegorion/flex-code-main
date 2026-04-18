@@ -14,6 +14,10 @@ import { securityHeaders, customSecurity } from './middleware/security.js';
 import { createDatabaseIndexes } from './utils/createIndexes.js';
 import { AuditLog, logAction } from './utils/auditLogger.js';
 import sanitizeInput from './middleware/sanitizer.js';
+import logger from './config/logger.js';
+import { requestIdMiddleware } from './middleware/requestId.js';
+import { setupGlobalErrorHandlers } from './utils/errorHandlers.js';
+import jobRoutesV2 from './routes/v2/jobs.js';
 
 // Routes
 import authRoutes from './routes/auth.js';
@@ -39,27 +43,34 @@ import workerDirectoryRoutes from './routes/workerDirectory.js';
 
 dotenv.config();
 
+// Setup global error handlers for unhandled rejections and uncaught exceptions
+setupGlobalErrorHandlers();
+
 // Validate critical environment variables
 if (!process.env.JWT_SECRET) {
-  console.error('CRITICAL: JWT_SECRET environment variable is not set!');
+  logger.error('CRITICAL: JWT_SECRET environment variable is not set!');
   process.exit(1);
 }
 
 if (!process.env.JWT_REFRESH_SECRET) {
-  console.error('CRITICAL: JWT_REFRESH_SECRET environment variable is not set!');
+  logger.error('CRITICAL: JWT_REFRESH_SECRET environment variable is not set!');
   process.exit(1);
 }
 
 if (!process.env.MONGO_URI && !process.env.MONGODB_URI) {
-  console.error('CRITICAL: MONGO_URI or MONGODB_URI environment variable is not set!');
+  logger.error('CRITICAL: MONGO_URI or MONGODB_URI environment variable is not set!');
   process.exit(1);
 }
 
-if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-  console.warn('WARNING: Cloudinary environment variables not set. Image uploads will fail.');
+if (
+  !process.env.CLOUDINARY_CLOUD_NAME ||
+  !process.env.CLOUDINARY_API_KEY ||
+  !process.env.CLOUDINARY_API_SECRET
+) {
+  logger.warn('WARNING: Cloudinary environment variables not set. Image uploads will fail.');
 }
 
-console.log('Environment check:', {
+logger.info('Environment check:', {
   NODE_ENV: process.env.NODE_ENV || 'development',
   PORT: process.env.PORT || 4000,
   MONGO_URI: process.env.MONGO_URI ? 'SET' : 'NOT SET',
@@ -71,10 +82,10 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: [
-      process.env.FRONTEND_URL || 'http://localhost:3000',
-      'https://eventflex.vercel.app'
-    ],
+    origin:
+      process.env.CORS_ORIGIN === '*'
+        ? true
+        : [process.env.FRONTEND_URL || 'http://localhost:3000', 'https://eventflex.vercel.app'],
     credentials: true
   }
 });
@@ -84,11 +95,11 @@ connectDB().then(async () => {
   // Create database indexes for performance
   try {
     await createDatabaseIndexes();
-    console.log('Database indexes initialized');
+    logger.info('Database indexes initialized');
   } catch (error) {
-    console.error('Failed to create database indexes:', error);
+    logger.error('Failed to create database indexes:', error);
   }
-  
+
   // Log server startup
   try {
     await logAction(
@@ -97,15 +108,16 @@ connectDB().then(async () => {
       'System',
       null,
       {
-      details: {
-        environment: process.env.NODE_ENV || 'development',
-        port: process.env.PORT || 4000,
-        timestamp: new Date().toISOString()
-      },
-      ipAddress: 'localhost'
-    });
+        details: {
+          environment: process.env.NODE_ENV || 'development',
+          port: process.env.PORT || 4000,
+          timestamp: new Date().toISOString()
+        },
+        ipAddress: 'localhost'
+      }
+    );
   } catch (error) {
-    console.error('Failed to log server startup:', error);
+    logger.error('Failed to log server startup:', error);
   }
 });
 
@@ -113,17 +125,23 @@ connectDB().then(async () => {
 startScheduledJobs();
 
 // CORS
-app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL || 'http://localhost:3000',
-    'http://localhost:3000',
-    'https://eventflex.vercel.app'
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-
+app.use(
+  cors({
+    origin:
+      process.env.CORS_ORIGIN === '*'
+        ? true
+        : [
+            process.env.FRONTEND_URL || 'http://localhost:3000',
+            'http://localhost:3000',
+            'https://eventflex.vercel.app'
+          ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  })
+);
+// Request ID generation for tracing
+app.use(requestIdMiddleware);
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -132,7 +150,7 @@ app.use(sanitizeInput);
 
 // Request logging middleware
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`, {
+  logger.debug(`${new Date().toISOString()} - ${req.method} ${req.path}`, {
     headers: req.headers.authorization ? 'Bearer ***' : 'No Auth',
     body: req.method === 'POST' ? 'Has Body' : 'No Body'
   });
@@ -155,12 +173,12 @@ if (process.env.NODE_ENV === 'production') {
   app.use(securityHeaders);
   app.use('/api/', apiLimiter);
 } else {
-  console.log('Development mode: Rate limiting disabled');
+  logger.debug('Development mode: Rate limiting disabled');
 }
 
 // Socket.io setup
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
+  logger.info('User connected:', { socketId: socket.id });
 
   socket.on('join-chat', (chatId) => {
     socket.join(chatId);
@@ -182,14 +200,31 @@ io.on('connection', (socket) => {
     socket.join(`group_${groupId}`);
   });
 
+  // Job alerts subscription - workers can subscribe to receive new job notifications
+  socket.on('subscribe_job_alerts', (userId) => {
+    if (!userId) {
+      logger.warn('Subscribe job alerts: No user ID provided');
+      return;
+    }
+    socket.join(`job_alerts:${userId}`);
+    logger.info('Worker subscribed to job alerts', { userId, socketId: socket.id });
+  });
+
+  // Job alerts unsubscribe
+  socket.on('unsubscribe_job_alerts', (userId) => {
+    if (!userId) return;
+    socket.leave(`job_alerts:${userId}`);
+    logger.info('Worker unsubscribed from job alerts', { userId, socketId: socket.id });
+  });
+
   socket.on('video-signal', (data) => {
     socket.to(data.to).emit('video-signal', data);
   });
 
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
+    logger.info('User disconnected:', { socketId: socket.id });
     // Explicitly leave all rooms
-    socket.rooms.forEach(room => {
+    socket.rooms.forEach((room) => {
       if (room !== socket.id) {
         socket.leave(room);
       }
@@ -210,18 +245,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-  // Remove the /api/debug endpoint - exposes internal request headers
-  // Kept only in development
-  if (process.env.NODE_ENV !== 'production') {
-    app.get('/api/debug', (req, res) => {
-      res.json({
-        headers: req.headers,
-        query: req.query,
-        params: req.params,
-        timestamp: new Date().toISOString()
-      });
-    });
-  }
+// Removed /api/debug endpoint as it exposes internal request headers
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -245,6 +269,9 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/co-organizers', coOrganizerRoutes);
 app.use('/api/worker-directory', workerDirectoryRoutes);
 
+// Routes - API v2 (optimized endpoints with aggregation pipelines and request tracking)
+app.use('/api/v2/jobs', jobRoutesV2);
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
@@ -256,7 +283,7 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 4000;
 
 httpServer.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  logger.info(`Server running on port ${PORT}`);
 });
 
 export default app;

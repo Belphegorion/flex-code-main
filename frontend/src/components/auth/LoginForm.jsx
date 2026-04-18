@@ -23,18 +23,14 @@ const LoginForm = () => {
       const data = await login(formData);
       toast.success('Login successful!');
       
-      // Check if profile is completed
-      const profileStatus = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/profile-setup/status`, {
-        headers: { 'Authorization': `Bearer ${data.accessToken}` }
-      }).then(res => res.json());
-      
-      if (!profileStatus.profileCompleted) {
+      // Use profileCompleted from login response
+      if (!data.user.profileCompleted) {
         navigate('/profile-setup');
         return;
       }
       
-  // Navigate based on role
-  if (data.user.role === 'worker') navigate('/jobs');
+      // Navigate based on role
+      if (data.user.role === 'worker') navigate('/worker');
       else if (data.user.role === 'organizer') navigate('/organizer');
       else if (data.user.role === 'sponsor') navigate('/sponsor');
       else if (data.user.role === 'admin') navigate('/admin');

@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+
+# Disallow admin paths
+Disallow: /admin/
+Disallow: /admin/*
+Disallow: /api/
+Disallow: /*.json$
+
+# Slow down aggressive crawlers
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+# Sitemap
+Sitemap: https://eventflex.com/sitemap.xml
+Sitemap: https://eventflex.com/sitemap-jobs.xml
+
+# Cache rules
+# Don't crawl query strings for pagination
+Disallow: /*?*
+Allow: /*?page=

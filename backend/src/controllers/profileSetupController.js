@@ -53,9 +53,24 @@ export const completeWorkerProfile = async (req, res) => {
       { new: true, upsert: true }
     );
 
-    await User.findByIdAndUpdate(req.userId, { profileCompleted: true });
+    const updatedUser = await User.findByIdAndUpdate(
+      req.userId,
+      { profileCompleted: true },
+      { new: true }
+    ).select('-password -refreshToken');
 
-    res.json({ message: 'Profile completed successfully', profile });
+    res.json({ 
+      message: 'Profile completed successfully',
+      user: {
+        id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        profileCompleted: updatedUser.profileCompleted,
+        profilePhoto: updatedUser.profilePhoto
+      },
+      profile 
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error completing profile', error: error.message });
   }
@@ -65,12 +80,31 @@ export const completeOrganizerProfile = async (req, res) => {
   try {
     const { companyName, industry, website, bio } = req.body;
 
-    await User.findByIdAndUpdate(req.userId, { 
-      profileCompleted: true,
-      name: companyName || req.user.name
-    });
+    // Update user with profile completion
+    const updatedUser = await User.findByIdAndUpdate(
+      req.userId,
+      { 
+        profileCompleted: true,
+        name: companyName || req.user.name
+      },
+      { new: true } // Return updated document
+    ).select('-password -refreshToken');
 
-    res.json({ message: 'Organizer profile completed successfully' });
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ 
+      message: 'Organizer profile completed successfully',
+      user: {
+        id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        profileCompleted: updatedUser.profileCompleted,
+        profilePhoto: updatedUser.profilePhoto
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error completing profile', error: error.message });
   }

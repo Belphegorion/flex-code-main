@@ -1,47 +1,65 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { FiSearch, FiFilter, FiStar, FiMessageCircle, FiBriefcase, FiMapPin } from 'react-icons/fi';
-import Layout from '../components/common/Layout';
-import api from '../services/api';
-import { toast } from 'react-toastify';
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import {
+  FiSearch,
+  FiFilter,
+  FiStar,
+  FiMessageCircle,
+  FiBriefcase,
+  FiMapPin,
+} from "react-icons/fi";
+import Layout from "../components/common/Layout";
+import api from "../services/api";
+import { toast } from "react-toastify";
+import { useAuth } from "../hooks/useAuth";
 
 export default function WorkerDirectory() {
+  const { user } = useAuth();
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState({
-    search: '',
-    skills: '',
-    location: '',
-    minRating: '',
-    availability: ''
+    search: "",
+    skills: "",
+    location: "",
+    minRating: "",
+    availability: "",
   });
+  const ratingOptions = [
+    { value: "4", label: "4+ Stars" },
+    { value: "4.5", label: "4.5+ Stars" },
+    { value: "4.8", label: "4.8+ Stars" },
+  ];
   const [selectedWorker, setSelectedWorker] = useState(null);
   const [showChat, setShowChat] = useState(false);
   const [showJobSelect, setShowJobSelect] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [conversation, setConversation] = useState([]);
   const [jobs, setJobs] = useState([]);
 
   useEffect(() => {
-    searchWorkers();
-    fetchMyJobs();
+    if (user) {
+      searchWorkers();
+      fetchMyJobs();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user]);
 
   const fetchMyJobs = async () => {
     try {
-      const res = await api.get('/jobs');
-      // assuming api is axios-like
+      const res = await api.get("/jobs");
+      // Handle different possible response structures
       const data = res?.data || res;
-      setJobs(data.jobs || data || []);
+      const jobsData = data.jobs || data || [];
+      setJobs(Array.isArray(jobsData) ? jobsData : []);
     } catch (error) {
-      console.error('Error fetching jobs:', error);
-      toast.error('Failed to load your jobs. Please try again.');
+      console.error("Error fetching jobs:", error);
+      toast.error("Failed to load your jobs. Please try again.");
       setJobs([]);
     }
   };
 
   const searchWorkers = async () => {
+    if (!user) return;
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -49,13 +67,16 @@ export default function WorkerDirectory() {
         if (value) params.append(key, value);
       });
 
-      const res = await api.get(`/worker-directory/search?${params.toString()}`);
+      const res = await api.get(
+        `/worker-directory/search?${params.toString()}`,
+      );
+      // Support both { workers: [...] } and direct array return
       const data = res?.data || res;
-      // support both { workers: [...] } and direct array return
-      setWorkers(data.workers || data || []);
+      const workersData = data.workers || data || [];
+      setWorkers(Array.isArray(workersData) ? workersData : []);
     } catch (error) {
       console.error(error);
-      toast.error('Failed to search workers');
+      toast.error("Failed to search workers");
       setWorkers([]);
     } finally {
       setLoading(false);
@@ -70,7 +91,7 @@ export default function WorkerDirectory() {
       const data = res?.data || res;
       setConversation(data.conversation?.messages || data.messages || []);
     } catch (error) {
-      console.error('Error loading conversation:', error);
+      console.error("Error loading conversation:", error);
       setConversation([]);
     }
   };
@@ -79,17 +100,20 @@ export default function WorkerDirectory() {
     if (!message.trim() || !selectedWorker) return;
 
     try {
-      await api.post('/worker-directory/message', {
+      await api.post("/worker-directory/message", {
         workerId: selectedWorker._id,
-        text: message
+        text: message,
       });
 
-      setConversation(prev => [...prev, { senderId: 'me', text: message, createdAt: new Date().toISOString() }]);
-      setMessage('');
-      toast.success('Message sent');
+      setConversation((prev) => [
+        ...prev,
+        { senderId: "me", text: message, createdAt: new Date().toISOString() },
+      ]);
+      setMessage("");
+      toast.success("Message sent");
     } catch (error) {
       console.error(error);
-      toast.error('Failed to send message');
+      toast.error("Failed to send message");
     }
   };
 
@@ -100,21 +124,21 @@ export default function WorkerDirectory() {
 
   const sendJobOffer = async (jobId) => {
     if (!jobId) {
-      toast.error('Please select a job');
+      toast.error("Please select a job");
       return;
     }
 
     try {
-      await api.post('/worker-directory/offer', {
+      await api.post("/worker-directory/offer", {
         workerId: selectedWorker._id,
         jobId,
-        message: 'I would like to offer you this position'
+        message: "I would like to offer you this position",
       });
-      toast.success('Job offer sent!');
+      toast.success("Job offer sent!");
       setShowJobSelect(false);
     } catch (error) {
       console.error(error);
-      toast.error(error?.response?.data?.message || 'Failed to send offer');
+      toast.error(error?.response?.data?.message || "Failed to send offer");
     }
   };
 
@@ -122,7 +146,9 @@ export default function WorkerDirectory() {
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8">
         <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Worker Directory</h1>
+          <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            Worker Directory
+          </h1>
 
           {/* Filters */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 mb-8 shadow-xl border border-gray-100 dark:border-gray-700">
@@ -131,7 +157,9 @@ export default function WorkerDirectory() {
                 type="text"
                 placeholder="Search by name..."
                 value={filters.search}
-                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, search: e.target.value }))
+                }
                 className="px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               />
 
@@ -139,7 +167,9 @@ export default function WorkerDirectory() {
                 type="text"
                 placeholder="Skills (comma separated)"
                 value={filters.skills}
-                onChange={(e) => setFilters(prev => ({ ...prev, skills: e.target.value }))}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, skills: e.target.value }))
+                }
                 className="px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               />
 
@@ -147,18 +177,25 @@ export default function WorkerDirectory() {
                 type="text"
                 placeholder="Location"
                 value={filters.location}
-                onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, location: e.target.value }))
+                }
                 className="px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               />
 
               <select
                 value={filters.minRating}
-                onChange={(e) => setFilters(prev => ({ ...prev, minRating: e.target.value }))}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, minRating: e.target.value }))
+                }
                 className="px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               >
                 <option value="">Any Rating</option>
-                <option value="4">4+ Stars</option>
-                <option value="4.5">4.5+ Stars</option>
+                {ratingOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
 
               <button
@@ -190,27 +227,35 @@ export default function WorkerDirectory() {
                   <div className="flex items-start gap-4 mb-4">
                     <div className="relative">
                       <img
-                        src={worker.profilePhoto || '/default-avatar.png'}
-                        alt={worker.name || 'Worker'}
+                        src={worker.profilePhoto || "/default-avatar.png"}
+                        alt={worker.name || "Worker"}
                         className="w-20 h-20 rounded-2xl object-cover ring-4 ring-indigo-100 dark:ring-indigo-900/30"
                       />
                     </div>
 
                     <div className="flex-1">
-                      <h3 className="font-bold text-xl text-gray-900 dark:text-white">{worker.name || 'Unnamed'}</h3>
+                      <h3 className="font-bold text-xl text-gray-900 dark:text-white">
+                        {worker.name || "Unnamed"}
+                      </h3>
 
                       {(worker.ratingAvg ?? 0) > 0 && (
                         <div className="flex items-center gap-1 text-yellow-500">
                           <FiStar />
-                          <span className="font-medium">{(Number(worker.ratingAvg) || 0).toFixed(1)}</span>
-                          <span className="text-gray-500 text-sm">({worker.ratingCount ?? 0})</span>
+                          <span className="font-medium">
+                            {(Number(worker.ratingAvg) || 0).toFixed(1)}
+                          </span>
+                          <span className="text-gray-500 text-sm">
+                            ({worker.ratingCount ?? 0})
+                          </span>
                         </div>
                       )}
                     </div>
                   </div>
 
                   {worker.bio && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{worker.bio}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+                      {worker.bio}
+                    </p>
                   )}
 
                   {Array.isArray(worker.skills) && worker.skills.length > 0 && (
@@ -262,10 +307,14 @@ export default function WorkerDirectory() {
             <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-md w-full">
                 <div className="p-6">
-                  <h3 className="text-xl font-bold mb-4">Select Job to Offer</h3>
+                  <h3 className="text-xl font-bold mb-4">
+                    Select Job to Offer
+                  </h3>
 
                   {jobs.length === 0 ? (
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">No jobs available. Create a job first.</p>
+                    <p className="text-gray-600 dark:text-gray-400 mb-4">
+                      No jobs available. Create a job first.
+                    </p>
                   ) : (
                     <div className="space-y-2 max-h-96 overflow-y-auto mb-4">
                       {jobs.map((job) => (
@@ -275,14 +324,28 @@ export default function WorkerDirectory() {
                           onClick={() => sendJobOffer(job._id)}
                           className="w-full text-left p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
-                          <div className="font-semibold text-gray-900 dark:text-white">{job.title}</div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">{job.payPerPerson ? `$${job.payPerPerson}/person` : 'Payment TBD'} • {job.location?.city || job.location?.address || 'Location TBD'}</div>
+                          <div className="font-semibold text-gray-900 dark:text-white">
+                            {job.title}
+                          </div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {job.payPerPerson
+                              ? `$${job.payPerPerson}/person`
+                              : "Payment TBD"}{" "}
+                            •{" "}
+                            {job.location?.city ||
+                              job.location?.address ||
+                              "Location TBD"}
+                          </div>
                         </button>
                       ))}
                     </div>
                   )}
 
-                  <button type="button" onClick={() => setShowJobSelect(false)} className="w-full px-4 py-2 rounded-lg border">
+                  <button
+                    type="button"
+                    onClick={() => setShowJobSelect(false)}
+                    className="w-full px-4 py-2 rounded-lg border"
+                  >
                     Cancel
                   </button>
                 </div>
@@ -297,20 +360,33 @@ export default function WorkerDirectory() {
                 <div className="p-4 border-b dark:border-gray-700 flex justify-between items-center">
                   <div className="flex items-center gap-3">
                     <img
-                      src={selectedWorker.profilePhoto || '/default-avatar.png'}
-                      alt={selectedWorker.name || 'Worker'}
+                      src={selectedWorker.profilePhoto || "/default-avatar.png"}
+                      alt={selectedWorker.name || "Worker"}
                       className="w-10 h-10 rounded-full"
                     />
-                    <h3 className="font-semibold">{selectedWorker.name || 'Unnamed'}</h3>
+                    <h3 className="font-semibold">
+                      {selectedWorker.name || "Unnamed"}
+                    </h3>
                   </div>
 
-                  <button type="button" onClick={() => setShowChat(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+                  <button
+                    type="button"
+                    onClick={() => setShowChat(false)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    ✕
+                  </button>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-3">
                   {conversation.map((msg, idx) => (
-                    <div key={idx} className={`flex ${msg.senderId === 'me' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-xs px-4 py-2 rounded-lg ${msg.senderId === 'me' ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-gray-700'}`}>
+                    <div
+                      key={idx}
+                      className={`flex ${msg.senderId === "me" ? "justify-end" : "justify-start"}`}
+                    >
+                      <div
+                        className={`max-w-xs px-4 py-2 rounded-lg ${msg.senderId === "me" ? "bg-indigo-600 text-white" : "bg-gray-200 dark:bg-gray-700"}`}
+                      >
                         {msg.text}
                       </div>
                     </div>
@@ -323,12 +399,16 @@ export default function WorkerDirectory() {
                       type="text"
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                      onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                       placeholder="Type a message..."
                       className="flex-1 px-4 py-2 border rounded-lg dark:bg-gray-800 dark:text-white"
                     />
 
-                    <button type="button" onClick={sendMessage} className="px-4 py-2 rounded-lg bg-indigo-600 text-white">
+                    <button
+                      type="button"
+                      onClick={sendMessage}
+                      className="px-4 py-2 rounded-lg bg-indigo-600 text-white"
+                    >
                       Send
                     </button>
                   </div>
