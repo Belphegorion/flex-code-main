@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiUsers, FiMessageCircle, FiSearch, FiHash } from "react-icons/fi";
+import { toast } from "react-toastify";
 import Layout from "../components/common/Layout";
 import QRScanner from "../components/groups/QRScanner";
 import api from "../services/api";
@@ -52,16 +53,26 @@ export default function Groups() {
   }
 
   const filteredGroups = useMemo(() => {
-    return groups.filter(
-      (group) =>
-        (group.name &&
-          group.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (group.eventId &&
-          group.eventId.title &&
-          group.eventId.title
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase())),
-    );
+    return groups.filter((group) => {
+      // Check if group is a valid object
+      if (!group || typeof group !== "object") return false;
+
+      // Check name match
+      const nameMatch =
+        group.name &&
+        typeof group.name === "string" &&
+        group.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+      // Check eventId.title match
+      const eventTitleMatch =
+        group.eventId &&
+        typeof group.eventId === "object" &&
+        group.eventId.title &&
+        typeof group.eventId.title === "string" &&
+        group.eventId.title.toLowerCase().includes(searchQuery.toLowerCase());
+
+      return nameMatch || eventTitleMatch;
+    });
   }, [groups, searchQuery]);
 
   const formatTime = (date) => {
