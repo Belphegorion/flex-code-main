@@ -1,4 +1,3 @@
-import Profile from '../models/Profile.js';
 import User from '../models/User.js';
 import Application from '../models/Application.js';
 
@@ -171,22 +170,15 @@ export const calculateMatchScores = async (jobs, userId) => {
 
 export const updateReliabilityScore = async (userId) => {
   try {
-    const profile = await Profile.findOne({ userId });
-    if (!profile) return;
+    const user = await User.findById(userId);
+    if (!user) return;
 
-    const user = await Profile.findOne({ userId }).populate('userId');
-    const completedJobs = user?.userId?.completedJobsCount || 0;
-    const noShows = user?.userId?.noShowCount || 0;
+    const completedJobs = user.completedJobsCount || 0;
+    const noShows = user.noShowCount || 0;
     const totalJobs = completedJobs + noShows;
 
-    if (totalJobs === 0) {
-      profile.reliabilityScore = 100;
-    } else {
-      const reliabilityScore = Math.max(0, Math.round((completedJobs / totalJobs) * 100));
-      profile.reliabilityScore = reliabilityScore;
-    }
-
-    await profile.save();
+    const reliabilityScore = totalJobs === 0 ? 1.0 : Math.max(0, completedJobs / totalJobs);
+    await User.findByIdAndUpdate(userId, { reliabilityScore });
   } catch (error) {
     console.error('Error updating reliability score:', error);
   }

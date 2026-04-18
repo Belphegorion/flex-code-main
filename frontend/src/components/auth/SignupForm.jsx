@@ -120,10 +120,10 @@ const SignupForm = () => {
             className="input-field pl-10"
             placeholder="••••••••"
             required
-            minLength={6}
+            minLength={8}
           />
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Minimum 6 characters</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Min 8 characters with uppercase, lowercase and a number</p>
       </div>
 
       <div>

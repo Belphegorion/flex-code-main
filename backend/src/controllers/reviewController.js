@@ -49,8 +49,8 @@ export const createReview = async (req, res) => {
         timeliness: rating
       },
       overallRating: rating,
-      title: 'Review',
-      content: text || ''
+      title: text ? text.substring(0, 100) : 'Review',
+      content: text || 'No comment provided'
     });
 
     // Update user rating

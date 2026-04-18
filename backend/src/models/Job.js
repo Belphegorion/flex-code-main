@@ -113,6 +113,6 @@ jobSchema.index({ payPerPerson: 1 });
 jobSchema.index({ organizerId: 1, status: 1 });
 
 // Text index for full-text search
-jobSchema.index({ title: 'text', description: 'text', roles: 'text' });
+jobSchema.index({ title: 'text', description: 'text', requiredSkills: 'text' });
 
 export default mongoose.model('Job', jobSchema);

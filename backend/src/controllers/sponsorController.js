@@ -63,6 +63,7 @@ export const sponsorEvent = async (req, res) => {
     const privateChat = await GroupChat.create({
       name: chatName,
       eventId,
+      groupType: 'coorganizer',
       participants: [req.userId, event.organizerId._id],
       createdBy: req.userId,
       messages: [{

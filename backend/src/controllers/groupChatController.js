@@ -72,7 +72,7 @@ export const getGroups = async (req, res) => {
       .sort({ lastMessageAt: -1 });
 
     const Event = (await import('../models/Event.js')).default;
-    const eventIds = [...new Set(groups.map(g => g.eventId._id.toString()))];
+    const eventIds = [...new Set(groups.filter(g => g.eventId).map(g => g.eventId._id.toString()))];
     const events = await Event.find({ _id: { $in: eventIds } });
     
     const isMainOrganizerMap = {};
@@ -82,7 +82,7 @@ export const getGroups = async (req, res) => {
 
     const groupsWithAccess = groups.map(g => ({
       ...g.toObject(),
-      canAccessAll: isMainOrganizerMap[g.eventId._id.toString()]
+      canAccessAll: g.eventId ? (isMainOrganizerMap[g.eventId._id.toString()] || false) : false
     }));
 
     res.json({ groups: groupsWithAccess });
@@ -159,28 +159,28 @@ export const sendGroupMessage = async (req, res) => {
       message: group.messages[group.messages.length - 1]
     });
 
-    // Create notifications for other participants
+    // Notify other participants async — don't block the response
     const { createNotification } = await import('./notificationController.js');
     const otherParticipants = group.participants.filter(
       p => p._id.toString() !== req.userId.toString()
     );
 
-    for (const participant of otherParticipants) {
-      await createNotification(participant._id, {
-        type: 'message',
-        title: `New message in ${group.name}`,
-        message: `${sender.name}: ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}`,
-        relatedId: group._id,
-        relatedModel: 'GroupChat',
-        actionUrl: `/groups/${group._id}`
-      });
-
-      // Emit notification to user
-      io.to(`user_${participant._id}`).emit('notification', {
-        type: 'message',
-        message: `New message from ${sender.name}`
-      });
-    }
+    setImmediate(async () => {
+      for (const participant of otherParticipants) {
+        await createNotification(participant._id, {
+          type: 'message',
+          title: `New message in ${group.name}`,
+          message: `${sender.name}: ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}`,
+          relatedId: group._id,
+          relatedModel: 'GroupChat',
+          actionUrl: `/groups/${group._id}`
+        });
+        io.to(`user_${participant._id}`).emit('notification', {
+          type: 'message',
+          message: `New message from ${sender.name}`
+        });
+      }
+    });
 
     res.json({ message: 'Message sent', data: message });
   } catch (error) {

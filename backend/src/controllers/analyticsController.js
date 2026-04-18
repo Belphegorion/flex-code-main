@@ -11,10 +11,11 @@ export const getOrganizerAnalytics = async (req, res) => {
     const cached = cache.get(cacheKey);
     if (cached) return res.json(cached);
 
-    const [events, jobs, applications, sessions] = await Promise.all([
+    const jobs = await Job.find({ organizerId: req.userId }).lean();
+    const jobIds = jobs.map(j => j._id);
+    const [events, applications, sessions] = await Promise.all([
       Event.find({ organizerId: req.userId }).lean(),
-      Job.find({ organizerId: req.userId }).lean(),
-      Application.find({ organizerId: req.userId }).lean(),
+      Application.find({ jobId: { $in: jobIds } }).lean(),
       WorkSession.find({ 
         eventId: { $in: (await Event.find({ organizerId: req.userId }).distinct('_id')) }
       }).lean()

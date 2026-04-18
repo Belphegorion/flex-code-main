@@ -45,7 +45,7 @@ const reviewSchema = new mongoose.Schema({
 });
 
 reviewSchema.index({ subjectId: 1, createdAt: -1 });
-reviewSchema.index({ reviewerId: 1, subjectId: 1 }, { unique: true });
+reviewSchema.index({ reviewerId: 1, subjectId: 1, jobId: 1 }, { unique: true });
 reviewSchema.index({ jobId: 1 });
 
 reviewSchema.pre('save', function(next) {

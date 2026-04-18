@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Layout from '../components/common/Layout';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { FiCalendar, FiUsers, FiDollarSign, FiTrendingUp, FiPlus, FiMapPin, FiClock, FiCheckCircle } from 'react-icons/fi';
@@ -10,6 +10,8 @@ const OrganizerDashboard = () => {
   const [events, setEvents] = useState([]);
   const [stats, setStats] = useState({ total: 0, upcoming: 0, ongoing: 0, completed: 0 });
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchEvents();
@@ -66,7 +68,7 @@ const OrganizerDashboard = () => {
                 <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Total Events</p>
               </div>
               <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
-              <p className="text-xs text-green-600 dark:text-green-400 mt-2">↑ 8% vs last month</p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">All events</p>
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-5">
@@ -128,7 +130,7 @@ const OrganizerDashboard = () => {
                         animate={{ opacity: 1 }}
                         transition={{ delay: idx * 0.03 }}
                         className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
-                        onClick={() => window.location.href = `/events/${event._id}`}
+                        onClick={() => navigate(`/events/${event._id}`)}
                       >
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                           <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">

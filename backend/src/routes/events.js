@@ -34,7 +34,10 @@ import {
 } from '../controllers/eventJobController.js';
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ 
+  dest: '/tmp/uploads/',
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+});
 
 // Specific routes first (before parameterized routes)
 router.get('/active/live', authenticate, getActiveEvents);

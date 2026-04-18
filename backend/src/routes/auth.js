@@ -14,7 +14,7 @@ router.post('/register', ...rateLimiterMiddleware, [
   body('name').trim().notEmpty().withMessage('Name is required'),
   body('email').isEmail().withMessage('Valid email is required'),
   body('phone').notEmpty().withMessage('Phone is required'),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
   body('role').isIn(['worker', 'organizer', 'sponsor', 'admin']).withMessage('Invalid role'),
   validate
 ], register);

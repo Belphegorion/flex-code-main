@@ -210,15 +210,18 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Debug endpoint
-app.get('/api/debug', (req, res) => {
-  res.json({
-    headers: req.headers,
-    query: req.query,
-    params: req.params,
-    timestamp: new Date().toISOString()
-  });
-});
+  // Remove the /api/debug endpoint - exposes internal request headers
+  // Kept only in development
+  if (process.env.NODE_ENV !== 'production') {
+    app.get('/api/debug', (req, res) => {
+      res.json({
+        headers: req.headers,
+        query: req.query,
+        params: req.params,
+        timestamp: new Date().toISOString()
+      });
+    });
+  }
 
 // Routes
 app.use('/api/auth', authRoutes);

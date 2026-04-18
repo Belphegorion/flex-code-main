@@ -115,7 +115,7 @@ export default function WorkerDashboard() {
               <p className="text-3xl font-bold text-gray-900 dark:text-white">
                 {applications.filter(app => app.status === 'accepted').length}
               </p>
-              <p className="text-xs text-green-600 dark:text-green-400 mt-2">↑ 8% vs last month</p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">Total accepted</p>
             </motion.div>
           </div>
 

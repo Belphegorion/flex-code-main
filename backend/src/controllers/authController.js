@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import tokenService from '../services/TokenService.js';
 import notificationService from '../services/NotificationService.js';
@@ -26,9 +25,7 @@ export const register = async (req, res) => {
     if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
       return res.status(400).json({ message: 'Password must contain at least one uppercase letter, one lowercase letter, and one number' });
     }
-    const saltRounds = process.env.NODE_ENV === 'production' ? 14 : 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const user = await User.create({ name, email, phone, password: hashedPassword, role });
+    const user = await User.create({ name, email, phone, password, role });
 
     const deviceId = req.headers['user-agent'] || 'unknown';
     const access = tokenService.generateAccessToken(user._id, user.role, deviceId);
@@ -50,7 +47,7 @@ export const register = async (req, res) => {
       refreshToken: refresh.token
     });
   } catch (error) {
-    logger.error('Register error', { error: error.message });
+    logger.error('Register error', { error: error.message, stack: error.stack });
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern || {})[0] || 'field';
       return res.status(400).json({ message: `${field} already exists` });
@@ -66,7 +63,11 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: 'Email and password are required' });
     }
     const user = await User.findOne({ email });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
     if (!user.isActive) {

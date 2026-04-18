@@ -14,9 +14,9 @@ export default function NotificationBell() {
     fetchNotifications();
     fetchUnreadCount();
 
-    socketService.onNotification(() => {
+    socketService.onNotification((newNotif) => {
+      setUnreadCount(prev => prev + 1);
       fetchNotifications();
-      fetchUnreadCount();
     });
 
     return () => socketService.offNotification();

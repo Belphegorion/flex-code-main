@@ -73,7 +73,6 @@ export default function GroupChat() {
     try {
       await api.post(`/groups/${groupId}/message`, { text: message });
       setMessage('');
-      fetchGroup();
     } catch (error) {
       toast.error('Failed to send message');
     }
@@ -191,7 +190,7 @@ export default function GroupChat() {
     }
   };
 
-  const isOrganizer = user?.role === 'organizer' && group?.createdBy === user?.id;
+  const isOrganizer = user?.role === 'organizer' && group?.createdBy?._id?.toString() === user?.id || group?.createdBy?.toString() === user?.id;
 
   const filteredWorkers = workers.filter(worker =>
     worker.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||

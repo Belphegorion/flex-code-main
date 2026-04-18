@@ -70,6 +70,10 @@ const groupChatSchema = new mongoose.Schema({
   },
   sessionDate: Date,
   sessionTime: String,
+  meetingScheduled: { type: Boolean, default: false },
+  meetingDate: Date,
+  meetingTime: String,
+  meetingUrl: String,
   allowedWorkers: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'

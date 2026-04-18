@@ -2,13 +2,8 @@ import Bull from 'bull';
 import logger from './logger.js';
 
 const createQueue = (name) => {
-  const queue = new Bull(name, {
-    redis: {
-      host: process.env.REDIS_HOST || 'localhost',
-      port: process.env.REDIS_PORT || 6379,
-      password: process.env.REDIS_PASSWORD,
-      db: 0
-    },
+  const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+  const queue = new Bull(name, redisUrl, {
     defaultJobOptions: {
       attempts: 3,
       backoff: {

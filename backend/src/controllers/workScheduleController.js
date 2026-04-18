@@ -506,9 +506,9 @@ export const getEventWorkSummary = async (req, res) => {
     
     const workerBadges = {};
     workerIds.forEach(workerId => {
-      const sessions = allWorkerSessions.filter(s => s.workerId.toString() === workerId);
-      const totalHours = sessions.reduce((sum, session) => sum + session.totalHours, 0);
-      const eventIds = [...new Set(sessions.map(session => session.eventId.toString()))];
+      const workerSessions = allWorkerSessions.filter(s => s.workerId.toString() === workerId);
+      const totalHours = workerSessions.reduce((sum, session) => sum + session.totalHours, 0);
+      const eventIds = [...new Set(workerSessions.map(session => session.eventId.toString()))];
       workerBadges[workerId] = calculateBadge(totalHours, eventIds.length);
     });
 

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { FiClock, FiPlay, FiSquare, FiQrCode, FiDownload } from 'react-icons/fi';
+import { FiClock, FiPlay, FiSquare, FiDownload } from 'react-icons/fi';
 import QRScanner from './QRScanner';
 import api from '../../services/api';
 

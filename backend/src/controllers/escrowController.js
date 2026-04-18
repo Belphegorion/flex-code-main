@@ -126,17 +126,7 @@ export const releasePayment = async (req, res) => {
 
     // Release payment to each pro
     const releasePromises = transaction.proIds.map(async (proId) => {
-      if (transaction.paymentMethod === 'stripe') {
-        // Create Stripe transfer (requires Connect accounts)
-        // const transfer = await stripe.transfers.create({...});
-        // For now, simulate
-      }
-
-      // Update user wallet/earnings
-      await User.findByIdAndUpdate(proId, {
-        $inc: { totalJobs: 1 }
-      });
-
+      await User.findByIdAndUpdate(proId, { $inc: { totalJobs: 1 } });
       return {
         proId,
         amount: amountPerPro,

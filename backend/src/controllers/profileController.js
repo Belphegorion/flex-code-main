@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Profile from '../models/Profile.js';
 import User from '../models/User.js';
 import cloudinary from '../config/cloudinary.js';
@@ -13,7 +14,7 @@ const manageProfileSection = async (userId, section, action, data) => {
       profile[section].push(data);
       break;
     case 'update':
-      const item = profile[section].id(data.id);
+      const item = profile[section].id(new mongoose.Types.ObjectId(data.id));
       if (!item) throw new Error('Item not found');
       Object.assign(item, data);
       break;

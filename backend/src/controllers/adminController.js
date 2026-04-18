@@ -24,14 +24,14 @@ export const markNoShow = async (req, res) => {
 
 export const runDailyReliabilityUpdate = async (req, res) => {
   try {
-    const users = await User.find({ role: 'worker' });
+    const users = await User.find({ role: 'worker' }).select('_id').limit(500).lean();
     
     for (const user of users) {
       const { updateReliabilityScore } = await import('../utils/matchingAlgorithm.js');
       await updateReliabilityScore(user._id);
     }
 
-    res.json({ message: `Updated reliability scores for ${users.length} pros` });
+    res.json({ message: `Updated reliability scores for ${users.length} workers` });
   } catch (error) {
     res.status(500).json({ message: 'Error updating reliability scores', error: error.message });
   }

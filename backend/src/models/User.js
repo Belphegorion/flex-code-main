@@ -45,7 +45,6 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
     lowercase: true,
     trim: true,
     match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email']
@@ -59,6 +58,17 @@ const userSchema = new mongoose.Schema({
   profilePhoto: String,
   skills: [String],
   badges: [String],
+  completedJobsCount: { type: Number, default: 0 },
+  noShowCount: { type: Number, default: 0 },
+  reliabilityScore: { type: Number, default: 1.0 },
+  ratingAvg: { type: Number, default: 0 },
+  totalJobs: { type: Number, default: 0 },
+  totalRatings: { type: Number, default: 0 },
+  aadhaarDocument: {
+    url: String,
+    uploadedAt: Date,
+    verificationStatus: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' }
+  },
   // New nested profile structure
   profileData: {
     worker: {
@@ -168,8 +178,8 @@ const userSchema = new mongoose.Schema({
     
     sponsor: {
       company: {
-        name: { type: String, required: function() { return this.role === 'sponsor'; } },
-        industry: { type: String, required: true },
+        name: String,
+        industry: String,
         website: String,
         logoUrl: String,
         description: String,
@@ -278,7 +288,7 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ email: 1 }, { unique: true, sparse: true });
 userSchema.index({ role: 1, isActive: 1 });
 userSchema.index({ 'profileData.worker.stats.jobSuccessScore': -1 });
 userSchema.index({ 'profileData.organizer.eventStats.totalEvents': -1 });

@@ -16,12 +16,11 @@ reliabilityQueue.process(async (job) => {
   if (!user) return;
 
   if (status === 'completed') {
-    user.completedJobsCount += 1;
+    await User.findByIdAndUpdate(userId, { $inc: { completedJobsCount: 1 } });
   } else if (status === 'no-show') {
-    user.noShowCount += 1;
+    await User.findByIdAndUpdate(userId, { $inc: { noShowCount: 1 } });
   }
   
-  await user.save();
   await updateReliabilityScore(userId);
 });
 

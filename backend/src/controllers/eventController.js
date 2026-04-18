@@ -236,7 +236,7 @@ export const deleteExpense = async (req, res) => {
       return res.status(404).json({ message: 'Event not found or unauthorized' });
     }
 
-    event.expenses.id(expenseId).remove();
+    event.expenses.pull({ _id: expenseId });
     await event.save();
     
     res.json({ message: 'Expense deleted', event });
@@ -315,7 +315,7 @@ export const deleteEstimatedExpense = async (req, res) => {
       return res.status(404).json({ message: 'Event not found or unauthorized' });
     }
 
-    event.estimatedExpenses.id(expenseId).remove();
+    event.estimatedExpenses.pull({ _id: expenseId });
     await event.save();
     
     res.json({ message: 'Estimated expense deleted', event });
@@ -443,7 +443,7 @@ export const removeCustomField = async (req, res) => {
       return res.status(404).json({ message: 'Event not found or unauthorized' });
     }
 
-    event.customFields.id(fieldId).remove();
+    event.customFields.pull({ _id: fieldId });
     await event.save();
     
     res.json({ message: 'Custom field removed', event });

@@ -7,7 +7,7 @@ export const getProfileSetupStatus = async (req, res) => {
     const user = await User.findById(req.userId).select('profileCompleted role');
     
     let profileData = null;
-    if (user.role === 'worker' || user.role === 'pro') {
+    if (user.role === 'worker') {
       profileData = await Profile.findOne({ userId: req.userId });
     } else if (user.role === 'sponsor') {
       profileData = await Sponsor.findOne({ userId: req.userId });

@@ -7,8 +7,7 @@ const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
     return delay;
   },
   maxRetriesPerRequest: 3,
-  enableAutoPipelining: true,
-  lazyConnect: true
+  enableAutoPipelining: true
 });
 
 redis.on('connect', () => {
